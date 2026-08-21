@@ -3,7 +3,6 @@
 //        Copyright (c) 2025 Electronic Arts Inc. All rights reserved.       //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "renderer/IoHandler.hpp"
 #include "utils/utils.hpp"  
 
 class GlewGlfwHandler

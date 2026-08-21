@@ -9,7 +9,6 @@ void GuiRendererConcreteMediator::notify(EventType event)
 {
     switch (event) {
         case EventType::LoadModel: {
-            renderer.resetModelMatrices();
             renderer.getSceneManager().loadModel(imguiUI.getMeshFilePath(), imguiUI.getMeshFilePathParentFolder());
             renderer.gaussianBufferFromSize(imguiUI.getResolutionTarget() * imguiUI.getResolutionTarget());
             renderer.setFormatType(0); //TODO: use an enum
@@ -27,7 +26,6 @@ void GuiRendererConcreteMediator::notify(EventType event)
         case EventType::LoadPly: {
             if (renderer.getSceneManager().loadPly(imguiUI.getPlyFilePath()))
             {
-                renderer.resetModelMatrices();
                 renderer.updateGaussianBuffer();
                 renderer.setFormatType(1); //TODO: use an enum
 
@@ -56,10 +54,6 @@ void GuiRendererConcreteMediator::notify(EventType event)
         case EventType::SavePLY: {
             renderer.getSceneManager().exportPly(imguiUI.getMeshFullFilePathDestination(), imguiUI.getFormatOption());
             imguiUI.setShouldSavePly(false);
-            break;
-        }
-        case EventType::UpdateTransforms: {
-            renderer.updateTransformations();
             break;
         }
     }
@@ -116,9 +110,6 @@ void GuiRendererConcreteMediator::update()
                     break;
             }
 
-            notify(EventType::UpdateTransforms);
-
-            // only EARLY-RETURN if batch is truly active (work still pending)
             double gpuFrameTime = renderer.getTotalGpuFrameTimeMs();
             imguiUI.setFrameMetrics(gpuFrameTime);
             return;
@@ -142,8 +133,6 @@ void GuiRendererConcreteMediator::update()
         if (imguiUI.shouldSavePly()) {
             notify(EventType::SavePLY);
         }
-
-        notify(EventType::UpdateTransforms);
     }
     
     double gpuFrameTime = renderer.getTotalGpuFrameTimeMs(); // Retrieve GPU frame time
@@ -160,7 +149,6 @@ void GuiRendererConcreteMediator::startBatchJob(ImGuiUI::BatchItem* job, ImGuiUI
     framesSinceDispatch = 0;
     batchSubstate = BatchSubstate::Loading;
 
-    renderer.resetModelMatrices();
     renderer.setFormatType(0); 
     renderer.setStdDevFromImGui(ui.getGaussianStd());
 

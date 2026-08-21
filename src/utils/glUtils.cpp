@@ -365,87 +365,6 @@ namespace glUtils
         return dummyRenderbuffer;
     }
 
-    void setupTransformFeedback(size_t bufferSize, GLuint& feedbackBuffer, GLuint& feedbackVAO, GLuint& acBuffer, unsigned int totalStride) {
-
-        // Create a buffer for storing feedback
-        glGenBuffers(1, &feedbackBuffer);
-        glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, feedbackBuffer);
-        glBufferData(GL_TRANSFORM_FEEDBACK_BUFFER, bufferSize * sizeof(float), NULL, GL_STATIC_READ);
-    
-        // Create a VAO for transform feedback
-        glGenVertexArrays(1, &feedbackVAO);
-        glBindVertexArray(feedbackVAO);
-
-        glBindBuffer(GL_ARRAY_BUFFER, feedbackBuffer);
-        //Gaussian mean (position) attribute
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, totalStride, (void*)0);
-        // Scale attribute
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, totalStride, (void*)(3 * sizeof(float))); 
-        // Normal attribute
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, totalStride, (void*)(6 * sizeof(float)));
-        // Quaternion attribute
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, totalStride, (void*)(9 * sizeof(float)));
-        // Rgba attribute
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, totalStride, (void*)(13 * sizeof(float)));
-        // MetallicRoughness attribute
-        glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 2, GL_FLOAT, GL_FALSE, totalStride, (void*)(17 * sizeof(float)));
-
-        glBindVertexArray(0);
-
-        // Bind the buffer to the transform feedback binding point
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedbackBuffer);
-    }
-
-    template<typename T>
-    void setUniform(GLuint shaderProgram, std::string uniformName, T uniformValue)
-    {
-        GLint uniformLocation = glGetUniformLocation(shaderProgram, uniformName.c_str());
-
-        if (uniformLocation == -1) {
-            std::cerr << "Could not find uniform: '" + uniformName + "'." << std::endl;
-        }
-        //TODO: I am open to a better solution
-        if constexpr (std::is_same_v<T, float>) {
-            glUniform1f(uniformLocation, uniformValue);
-        }
-        else if constexpr (std::is_same_v<T, int>) {
-            glUniform1i(uniformLocation, uniformValue);
-        }
-        else if constexpr (std::is_same_v<T, glm::vec2>) {
-            glUniform2fv(uniformLocation, 1, &uniformValue[0]);
-        }
-        else if constexpr (std::is_same_v<T, glm::vec3>) {
-            glUniform3fv(uniformLocation, 1, &uniformValue[0]);
-        }
-        else if constexpr (std::is_same_v<T, glm::vec4>) {
-            glUniform4fv(uniformLocation, 1, &uniformValue[0]);
-        }
-        else if constexpr (std::is_same_v<T, glm::mat4>) {
-            glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, &uniformValue[0][0]);
-        }
-        else {
-            static_assert(sizeof(T) == 0, "setUniform: Unsupported uniform type.");
-        }
-    }
-
-    void setUniform1f(GLuint shaderProgram, std::string uniformName, float uniformValue)
-    {
-        GLint uniformLocation = glGetUniformLocation(shaderProgram, uniformName.c_str());
-
-        if (uniformLocation == -1) {
-            std::cerr << "Could not find uniform: '" + uniformName + "'." << std::endl;
-        }
-
-        glUniform1f(uniformLocation, uniformValue);
-    }
-
-    //TODO: holy moly, the radix sort was being zeroes because I was setting an int rather than an unsigned int... 
     void setUniform1i(GLuint shaderProgram, std::string uniformName, int uniformValue)
     {
         GLint uniformLocation = glGetUniformLocation(shaderProgram, uniformName.c_str());
@@ -455,29 +374,6 @@ namespace glUtils
         }
 
         glUniform1i(uniformLocation, uniformValue);
-    }
-
-
-    void setUniform1ui(GLuint shaderProgram, std::string uniformName, unsigned int uniformValue)
-    {
-        GLint uniformLocation = glGetUniformLocation(shaderProgram, uniformName.c_str());
-
-        if (uniformLocation == -1) {
-            std::cerr << "Could not find uniform: '" + uniformName + "'." << std::endl;
-        }
-
-        glUniform1ui(uniformLocation, uniformValue);
-    }
-
-    void setUniform1uiv(GLuint shaderProgram, std::string uniformName, unsigned int* uniformValue, int count)
-    {
-        GLint uniformLocation = glGetUniformLocation(shaderProgram, uniformName.c_str());
-
-        if (uniformLocation == -1) {
-            std::cerr << "Could not find uniform: '" + uniformName + "'." << std::endl;
-        }
-
-        glUniform1uiv(uniformLocation, count, &uniformValue[0]);
     }
 
     void setUniform3f(GLuint shaderProgram, std::string uniformName, glm::vec3 uniformValue)
@@ -513,41 +409,6 @@ namespace glUtils
         glUniform2f(uniformLocation, uniformValue[0], uniformValue[1]);
     }
 
-    void setUniform2i(GLuint shaderProgram, std::string uniformName, glm::ivec2 uniformValue)
-    {
-        GLint uniformLocation = glGetUniformLocation(shaderProgram, uniformName.c_str());
-
-        if (uniformLocation == -1) {
-            std::cerr << "Could not find uniform: '" + uniformName + "'." << std::endl;
-        }
-
-        glUniform2i(uniformLocation, uniformValue[0], uniformValue[1]);
-    }
-
-
-    void setUniformMat4(GLuint shaderProgram, std::string uniformName, glm::mat4 matrix)
-    {
-        GLint uniformLocation = glGetUniformLocation(shaderProgram, uniformName.c_str());
-
-        if (uniformLocation == -1) {
-            std::cerr << "Could not find uniform: '" + uniformName + "'." << std::endl;
-        }
-
-        glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, &matrix[0][0]);
-    }
-
-    
-    void setUniformMat4v(GLuint shaderProgram, std::string uniformName, std::vector<glm::mat4> matrices, unsigned int count)
-    {
-        GLint uniformLocation = glGetUniformLocation(shaderProgram, uniformName.c_str());
-
-        if (uniformLocation == -1) {
-            std::cerr << "Could not find uniform: '" + uniformName + "'." << std::endl;
-        }
-
-        glUniformMatrix4fv(uniformLocation, count, GL_FALSE, glm::value_ptr(matrices[0]));
-    }
-
     void setTexture2D(GLuint shaderProgram, std::string textureUniformName, GLuint texture, unsigned int textureUnitNumber)
     {
         GLint uniformLocation = glGetUniformLocation(shaderProgram, textureUniformName.c_str());
@@ -559,51 +420,6 @@ namespace glUtils
         glBindTexture(GL_TEXTURE_2D, texture);
 
         glUniform1i(uniformLocation, textureUnitNumber);
-    }
-
-
-
-    static void writeAttachmentToPNG(const std::vector<float>& pixels, int width, int height, const std::string& filename) {
-        int channels = 4; // RGBA
-        std::vector<unsigned char> imageData(width * height * channels);
-        for (int i = 0; i < width * height * channels; ++i) {
-            // Clamp values to [0,1] and convert to 0-255 range
-            float val = glm::clamp(pixels[i], 0.0f, 1.0f);
-            imageData[i] = static_cast<unsigned char>(val * 255.0f);
-        }
-        // Write PNG file (row stride = width * channels)
-        stbi_write_png(filename.c_str(), width, height, channels, imageData.data(), width * channels);
-    }
-
-    void read3dgsDataFromSsboBuffer(GLuint& indirectDrawCommandBuffer, GLuint& gaussianBuffer, utils::GaussianDataSSBO*& gaussians, unsigned int& gaussianCount)
-    {
-        glFinish();
-        //TODO: Should read this structs from where they are declared initally or common file, not repeating it like this
-        struct DrawArraysIndirectCommand {
-            GLuint count;        
-            GLuint instanceCount;    
-            GLuint first;        
-            GLuint baseInstance;
-        };
-
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, indirectDrawCommandBuffer);
-        DrawArraysIndirectCommand* drawCmd = static_cast<DrawArraysIndirectCommand*>(
-            glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, sizeof(DrawArraysIndirectCommand), GL_MAP_READ_BIT)
-        );
-        if (!drawCmd) {
-            std::cerr << "Failed to map drawCommandBuffer." << std::endl;
-            return;
-        }
-        gaussianCount = drawCmd->instanceCount;
-        //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
-        // Bind and map the Gaussian buffer to read vertex data
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, gaussianBuffer);
-        size_t gaussianBufferSize = gaussianCount * sizeof(glm::vec4) * 6; //TODO: ISSUE6
-
-        gaussians = static_cast<utils::GaussianDataSSBO*>(
-            glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, gaussianBufferSize, GL_MAP_READ_BIT));
-
     }
 
     void fillGaussianBufferSsbo(GLuint& gaussianBuffer, std::vector<utils::GaussianDataSSBO>& gaussians)

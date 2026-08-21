@@ -10,7 +10,6 @@ set(GLEW_DIR                ${THIRD_PARTY_DIR}/glew)
 set(GLM_DIR                 ${THIRD_PARTY_DIR}/glm)
 set(IMGUI_DIR               ${THIRD_PARTY_DIR}/imgui)
 set(IGFD_DIR                ${THIRD_PARTY_DIR}/ImGuiFileDialog)
-set(IMGUIZMO_DIR            ${THIRD_PARTY_DIR}/imguizmo)
 set(XATLAS_DIR              ${THIRD_PARTY_DIR}/xatlas)
 
 include_directories(${GLFW_DIR}/include)
@@ -18,7 +17,6 @@ include_directories(${GLEW_DIR}/include)
 include_directories(${GLM_DIR})
 include_directories(${IMGUI_DIR})
 include_directories(${IGFD_DIR})
-include_directories(${IMGUIZMO_DIR})
 include_directories(${XATLAS_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR})
@@ -37,13 +35,6 @@ file(GLOB IMGUI_SOURCES
         ${IMGUI_DIR}/*.h
 )
 list(APPEND SOURCES ${LOD_SOURCES} ${IMGUI_SOURCES})
-
-file(GLOB IMGUIZMO_SOURCES
-        ${IMGUIZMO_DIR}/*.cpp
-        ${IMGUIZMO_DIR}/*.hpp
-        ${IMGUIZMO_DIR}/*.h
-)
-list(APPEND SOURCES ${IMGUIZMO_SOURCES})
 
 file(GLOB IGFD_SOURCE
         ${IGFD_DIR}/*.cpp

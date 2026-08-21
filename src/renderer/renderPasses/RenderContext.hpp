@@ -23,16 +23,7 @@ struct RenderContext {
     int resolution;
     glm::ivec2 rendererResolution;
     float gaussianStd = 0.65f;
-    glm::mat4 modelMat = glm::mat4(1);
-    glm::mat4 viewMat = glm::mat4(1);
-    glm::mat4 projMat = glm::mat4(1);
-    glm::mat4 MVP; //TODO: yeah, assumes we will render with one single model mat
-
-    glm::vec3 hfov_focal;
-    glm::vec3 camPos;
-    float nearPlane;
-    float farPlane;
-    GLFWwindow* rendererGlfwWindow; //TODO: I also need to store this here for now, as I need to reset the viewport DURING the rendering pass as it may ha
+    GLFWwindow* rendererGlfwWindow;
 
     ShaderRegistry shaderRegistry;
 

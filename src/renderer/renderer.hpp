@@ -5,7 +5,6 @@
 
 #pragma once
 #include "utils/utils.hpp"
-#include "ioHandler.hpp"
 #include "parsers/parsers.hpp"
 #include "utils/glUtils.hpp"
 #include "renderPasses/RenderContext.hpp"
@@ -15,14 +14,13 @@
 
 class Renderer {
 public:
-	Renderer(GLFWwindow* window, Camera& cameraInstance);
+	Renderer(GLFWwindow* window);
 
 	~Renderer();
 
 	void initialize();
 	void renderFrame();        
 	void clearingPrePass(glm::vec4 clearColor); 
-	void updateTransformations();
 
 	//TODO: For now not using this, will implement a render-pass based structure and change how the render-loop is implemented
 	bool updateShadersIfNeeded(bool forceReload = false);
@@ -41,7 +39,6 @@ public:
 	double getTotalGpuFrameTimeMs() const;
 	void updateGaussianBuffer();
 	void gaussianBufferFromSize(unsigned int size);
-	void resetModelMatrices();
 	bool isWindowMinimized();
 
 private:
@@ -56,7 +53,5 @@ private:
 	double lastShaderCheckTime;
 
 	double gpuFrameTimeMs;
-
-	Camera& camera;
 
 };

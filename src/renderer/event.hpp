@@ -10,6 +10,5 @@ enum class EventType {
     LoadPly,
     RunConversion,
     SavePLY,
-    CheckShaderUpdate,
-    UpdateTransforms
+    CheckShaderUpdate
 };

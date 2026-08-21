@@ -36,12 +36,7 @@ namespace glUtils
 
     void generateMeshesVBO(const std::vector<utils::Mesh>& meshes, std::vector<std::pair<utils::Mesh, utils::GLMesh>>& DataMeshAndGlMesh);
 
-    void setupTransformFeedback(size_t bufferSize, GLuint& feedbackBuffer, GLuint& feedbackVAO, GLuint& acBuffer, unsigned int totalStride);
-
     GLuint setupFrameBuffer(GLuint& framebuffer, unsigned int width, unsigned int height);
-    //GLuint setupFrameBuffer(GLuint& framebuffer, unsigned int width, unsigned int height);
-
-    void read3dgsDataFromSsboBuffer(GLuint& indirectDrawCommandBuffer, GLuint& gaussianBuffer, utils::GaussianDataSSBO*& gaussians, unsigned int& gaussianCount);
     
     void fillGaussianBufferSsbo(GLuint& gaussianBuffer, std::vector<utils::GaussianDataSSBO>& gaussians);
     void fillGaussianBufferSsbo(GLuint& gaussianBuffer, unsigned int size);
@@ -95,19 +90,10 @@ namespace glUtils
         GLuint oldProgram);
 
     //TODO: Make template function for this and make these one generic
-    template<typename T>
-    void setUniform(GLuint shaderProgram, std::string uniformName, T uniformValue);
-
-    void setUniform1f(GLuint shaderProgram, std::string uniformName, float uniformValue);
     void setUniform1i(GLuint shaderProgram, std::string uniformName, int uniformValue);
-    void setUniform1ui(GLuint shaderProgram, std::string uniformName, unsigned int uniformValue);
-    void setUniform1uiv(GLuint shaderProgram, std::string uniformName, unsigned int* uniformValue, int count);
     void setUniform4f(GLuint shaderProgram, std::string uniformName, glm::vec4 uniformValue);
     void setUniform3f(GLuint shaderProgram, std::string uniformName, glm::vec3 uniformValue);
     void setUniform2f(GLuint shaderProgram, std::string uniformName, glm::vec2 uniformValue);
-    void setUniform2i(GLuint shaderProgram, std::string uniformName, glm::ivec2 uniformValue);
-    void setUniformMat4(GLuint shaderProgram, std::string uniformName, glm::mat4 matrix);
-    void setUniformMat4v(GLuint shaderProgram, std::string uniformName, std::vector<glm::mat4> matrices, unsigned int count);
     void setTexture2D(GLuint shaderProgram, std::string textureUniformName, GLuint texture, unsigned int textureUnitNumber);
 }
 

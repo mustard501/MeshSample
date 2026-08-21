@@ -8,7 +8,7 @@
 
 //TODO: create a separete camera class, avoid it bloating and getting too messy
 
-Renderer::Renderer(GLFWwindow* window, Camera& cameraInstance) : camera(cameraInstance), renderContext {}
+Renderer::Renderer(GLFWwindow* window) : renderContext {}
 {
 
     rendererGlfwWindow = window;
@@ -118,36 +118,6 @@ void Renderer::renderFrame()
     }
 };        
 
-void Renderer::updateTransformations()
-{
-
-    int width, height;
-    glfwGetFramebufferSize(rendererGlfwWindow, &width, &height);
-
-    float fov = camera.GetFOV();
-
-    renderContext.nearPlane = 0.01f;
-    renderContext.farPlane = 100.0f;
-
-    renderContext.projMat = glm::perspective(glm::radians(fov),
-                                            (float)width / (float)height,
-                                            renderContext.nearPlane, renderContext.farPlane);
-    // Set viewport
-    glViewport(0, 0, width, height);
-
-    // Use Camera's view matrix
-    renderContext.viewMat = camera.GetViewMatrix();
-
-    renderContext.MVP = renderContext.projMat * renderContext.viewMat * renderContext.modelMat;
-
-    float htany = tan(glm::radians(fov) / 2);
-    float htanx = htany / height * width;
-    float focal_z = height / (2 * htany);
-    renderContext.hfov_focal = glm::vec3(htanx, htany, focal_z);
-
-    renderContext.camPos = camera.GetPosition();
-}
-
 void Renderer::clearingPrePass(glm::vec4 clearColor)
 {
     glClearColor(clearColor.r, clearColor.g, clearColor.b, 0); //alpha==0 Important for correct blending --> but still front to back expects first DST to be (0,0,0,0)
@@ -210,11 +180,6 @@ SceneManager& Renderer::getSceneManager()
 }
 
 double Renderer::getTotalGpuFrameTimeMs() const { return gpuFrameTimeMs; }
-
-void Renderer::resetModelMatrices()
-{
-    renderContext.modelMat = glm::mat4(1.0f);
-}
 
 bool Renderer::isWindowMinimized()
 {
