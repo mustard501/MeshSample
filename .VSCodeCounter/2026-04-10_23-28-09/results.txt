@@ -1,0 +1,110 @@
+Date : 2026-04-10 23:28:09
+Directory : c:\Users\31866\Desktop\mesh2splat\src
+Total : 73 files,  6504 codes, 709 comments, 1800 blanks, all 9013 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C++      |         53 |      5,104 |        561 |      1,372 |      7,037 |
+| GLSL     |         20 |      1,400 |        148 |        428 |      1,976 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                           | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                              |         73 |      6,504 |        709 |      1,800 |      9,013 |
+| . (Files)                                                                                      |          1 |         40 |          4 |         22 |         66 |
+| glewGlfwHandlers                                                                               |          2 |         51 |          9 |         17 |         77 |
+| imGuiUi                                                                                        |          2 |        666 |         37 |        165 |        868 |
+| implementationFiles                                                                            |          4 |          8 |         16 |          8 |         32 |
+| parsers                                                                                        |          2 |        478 |         68 |        136 |        682 |
+| renderer                                                                                       |         27 |      1,651 |        164 |        463 |      2,278 |
+| renderer (Files)                                                                               |          9 |        834 |         63 |        214 |      1,111 |
+| renderer\renderPasses                                                                          |         18 |        817 |        101 |        249 |      1,167 |
+| shaders                                                                                        |         20 |      1,400 |        148 |        428 |      1,976 |
+| shaders\conversion                                                                             |          4 |        642 |         46 |        157 |        845 |
+| shaders\rendering                                                                              |         16 |        758 |        102 |        271 |      1,131 |
+| utils                                                                                          |         15 |      2,210 |        263 |        561 |      3,034 |
++------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                       | language | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\31866\Desktop\mesh2splat\src\glewGlfwHandlers\glewGlfwHandler.cpp                     | C++      |         34 |          5 |         13 |         52 |
+| c:\Users\31866\Desktop\mesh2splat\src\glewGlfwHandlers\glewGlfwHandler.hpp                     | C++      |         17 |          4 |          4 |         25 |
+| c:\Users\31866\Desktop\mesh2splat\src\imGuiUi\ImGuiUI.cpp                                      | C++      |        505 |         27 |        118 |        650 |
+| c:\Users\31866\Desktop\mesh2splat\src\imGuiUi\ImGuiUi.hpp                                      | C++      |        161 |         10 |         47 |        218 |
+| c:\Users\31866\Desktop\mesh2splat\src\implementationFiles\stb_image_impl.cpp                   | C++      |          2 |          4 |          2 |          8 |
+| c:\Users\31866\Desktop\mesh2splat\src\implementationFiles\stb_image_resize_impl.cpp            | C++      |          2 |          4 |          2 |          8 |
+| c:\Users\31866\Desktop\mesh2splat\src\implementationFiles\stb_image_write_impl.cpp             | C++      |          2 |          4 |          2 |          8 |
+| c:\Users\31866\Desktop\mesh2splat\src\implementationFiles\tiny_gltf_impl.cpp                   | C++      |          2 |          4 |          2 |          8 |
+| c:\Users\31866\Desktop\mesh2splat\src\main.cpp                                                 | C++      |         40 |          4 |         22 |         66 |
+| c:\Users\31866\Desktop\mesh2splat\src\parsers\parsers.cpp                                      | C++      |        461 |         64 |        125 |        650 |
+| c:\Users\31866\Desktop\mesh2splat\src\parsers\parsers.hpp                                      | C++      |         17 |          4 |         11 |         32 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\IoHandler.cpp                                   | C++      |         48 |          4 |         15 |         67 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\IoHandler.hpp                                   | C++      |         18 |          5 |          6 |         29 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\RenderPasses.hpp                                | C++      |         18 |          6 |          6 |         30 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\event.hpp                                       | C++      |         12 |          4 |          2 |         18 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\guiRendererConcreteMediator.cpp                 | C++      |        212 |          8 |         45 |        265 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\guiRendererConcreteMediator.hpp                 | C++      |         21 |          5 |          6 |         32 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\mediator.hpp                                    | C++      |         10 |          4 |          3 |         17 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\ConversionPass.cpp                 | C++      |         87 |          6 |         25 |        118 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\ConversionPass.hpp                 | C++      |          9 |          4 |          3 |         16 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\DepthPrepass.cpp                   | C++      |         31 |          4 |         15 |         50 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\DepthPrepass.hpp                   | C++      |          7 |          4 |          2 |         13 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\GaussianRelightingPass.cpp         | C++      |        111 |         12 |         28 |        151 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\GaussianRelightingPass.hpp         | C++      |         15 |          4 |          3 |         22 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\GaussianShadowPass.cpp             | C++      |        173 |          8 |         56 |        237 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\GaussianShadowPass.hpp             | C++      |         15 |          4 |          3 |         22 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\GaussianSplattingPass.cpp          | C++      |         62 |          8 |         27 |         97 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\GaussianSplattingPass.hpp          | C++      |         11 |          4 |          2 |         17 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\GaussiansPrepass.cpp               | C++      |         37 |          4 |         15 |         56 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\GaussiansPrepass.hpp               | C++      |          7 |          4 |          2 |         13 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\MeshRenderPass.cpp                 | C++      |         56 |          4 |         14 |         74 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\MeshRenderPass.hpp                 | C++      |          7 |          4 |          3 |         14 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\RadixSortPass.cpp                  | C++      |         66 |          7 |         18 |         91 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\RadixSortPass.hpp                  | C++      |         12 |          4 |          6 |         22 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\RenderContext.hpp                  | C++      |         92 |         12 |         21 |        125 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderPasses\RenderPass.hpp                     | C++      |         19 |          4 |          6 |         29 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderer.cpp                                    | C++      |        435 |         22 |        114 |        571 |
+| c:\Users\31866\Desktop\mesh2splat\src\renderer\renderer.hpp                                    | C++      |         60 |          5 |         17 |         82 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\conversion\converterFS.glsl                      | GLSL     |         71 |         11 |         23 |        105 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\conversion\converterGS.glsl                      | GLSL     |        335 |         16 |         93 |        444 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\conversion\converterVS.glsl                      | GLSL     |         23 |          6 |          6 |         35 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\conversion\eigendecomposition.glsl               | GLSL     |        213 |         13 |         35 |        261 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\common.glsl                            | GLSL     |         69 |          7 |         19 |         95 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\depthPrepassPS.glsl                    | GLSL     |          5 |          4 |          3 |         12 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\depthPrepassVS.glsl                    | GLSL     |         13 |          4 |          5 |         22 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\frameBufferReaderCS.glsl               | GLSL     |         32 |          6 |         19 |         57 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\gaussianPointLightCubeMapShadowPS.glsl | GLSL     |          9 |          4 |          5 |         18 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\gaussianPointLightCubeMapShadowVS.glsl | GLSL     |         11 |          5 |          6 |         22 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\gaussianPointShadowMappingCS.glsl      | GLSL     |        146 |          9 |         54 |        209 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\gaussianSplattingDeferredPS.glsl       | GLSL     |        115 |         15 |         35 |        165 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\gaussianSplattingDeferredVS.glsl       | GLSL     |          9 |          4 |          6 |         19 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\gaussianSplattingPS.glsl               | GLSL     |         31 |          4 |         11 |         46 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\gaussianSplattingPrepassCS.glsl        | GLSL     |        144 |          9 |         53 |        206 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\gaussianSplattingVS.glsl               | GLSL     |         28 |          6 |          8 |         42 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\meshRenderPS.glsl                      | GLSL     |         65 |         13 |         17 |         95 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\meshRenderVS.glsl                      | GLSL     |         26 |          4 |          9 |         39 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\radixSortGather.glsl                   | GLSL     |         35 |          4 |         11 |         50 |
+| c:\Users\31866\Desktop\mesh2splat\src\shaders\rendering\radixSortPrepass.glsl                  | GLSL     |         20 |          4 |         10 |         34 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\Camera.cpp                                         | C++      |         71 |          5 |         19 |         95 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\Camera.hpp                                         | C++      |         28 |          4 |          9 |         41 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\SceneManager.cpp                                   | C++      |        499 |         59 |        129 |        687 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\SceneManager.hpp                                   | C++      |         26 |          4 |          7 |         37 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\ShaderRegistry.cpp                                 | C++      |         63 |          5 |         13 |         81 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\ShaderRegistry.hpp                                 | C++      |         15 |          4 |         10 |         29 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\argparser.cpp                                      | C++      |         14 |          4 |          3 |         21 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\argparser.hpp                                      | C++      |         14 |          5 |          5 |         24 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\glUtils.cpp                                        | C++      |        499 |         61 |        144 |        704 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\glUtils.hpp                                        | C++      |        112 |          8 |         37 |        157 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\normalizedUvUnwrapping.cpp                         | C++      |        259 |         32 |         26 |        317 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\normalizedUvUnwrapping.hpp                         | C++      |         10 |          4 |          5 |         19 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\params.hpp                                         | C++      |         15 |          7 |          6 |         28 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\utils.cpp                                          | C++      |        363 |         55 |         79 |        497 |
+| c:\Users\31866\Desktop\mesh2splat\src\utils\utils.hpp                                          | C++      |        222 |          6 |         69 |        297 |
+| Total                                                                                          |          |      6,504 |        709 |      1,800 |      9,013 |
++------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
