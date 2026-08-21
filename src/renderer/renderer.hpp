@@ -6,10 +6,8 @@
 #pragma once
 #include "utils/utils.hpp"
 #include "ioHandler.hpp"
-#include "imGuiUi/ImGuiUi.hpp"
 #include "parsers/parsers.hpp"
 #include "utils/glUtils.hpp"
-#include "RadixSort.hpp"
 #include "renderPasses/RenderContext.hpp"
 #include "RenderPasses.hpp"
 #include "utils/SceneManager.hpp"
@@ -43,26 +41,8 @@ public:
 	double getTotalGpuFrameTimeMs() const;
 	void updateGaussianBuffer();
 	void gaussianBufferFromSize(unsigned int size);
-	void setRenderMode(ImGuiUI::VisualizationOption renderMode);
 	void resetModelMatrices();
-	void createGBuffer();
-	void deleteGBuffer();
-	void createDepthTexture();
-	void deleteDepthTexture();
-	void setDepthTestEnabled(bool depthTest);
-	void setLightingEnabled(bool isEnabled);
-	void setLightIntensity(float lightIntensity);
-	void setLightColor(glm::vec3 lightColor);
-	bool hasWindowSizeChanged();
 	bool isWindowMinimized();
-
-	void createMeshGBuffer();
-	void deleteMeshGBuffer();
-	void setSplitScreenEnabled(bool enabled);
-	void setSplitScreenPosition(float position);
-
-
-
 
 private:
 	std::map<std::string, std::unique_ptr<IRenderPass>> renderPasses;

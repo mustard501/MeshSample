@@ -172,7 +172,7 @@ def process_directory(input_dir):
 
 
 if __name__ == "__main__":
-    target_directory = "output/elm_abs"
+    target_directory = "1"
 
     if os.path.exists(target_directory):
         process_directory(target_directory)

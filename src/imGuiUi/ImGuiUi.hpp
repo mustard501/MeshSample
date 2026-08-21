@@ -13,7 +13,6 @@
 #include <imgui_impl_opengl3.h>
 #include <glm/glm.hpp>
 #include "utils/utils.hpp"
-#include "Imguizmo.hpp"
 #include "ImGuiFileDialog.h"
 
 
@@ -41,8 +40,6 @@ public:
     bool shouldSavePly() const;
     bool wasMeshLoaded() const;
     bool shouldLoadPly() const;
-    bool isLightingEnabled() const;
-    bool isLightSelected() const;
     bool wasPlyLoaded() const;
 
     std::string getMeshFilePath() const;
@@ -67,35 +64,9 @@ public:
     void setLoadNewPly(bool loadedPly);
     void setPlyLoaded(bool loadedPly);
 
-    void renderGizmoUi(glm::mat4& glmViewMat, glm::mat4& glmProjMat, glm::mat4& glmModelMat);
     void renderFileSelectorWindow();
     void renderPropertiesWindow();
     void renderGpuFrametime();
-    void renderLightingSettings();
-    float getLightIntensity() const;
-    glm::vec3 getLightColor() const;
-    
-    void setEnableDepthTest(bool depthTest);
-    bool getIsDepthTestEnabled() const;
-
-    bool isSplitScreenEnabled() const;
-    float getSplitScreenPosition() const;
-
-
-    enum class VisualizationOption
-    {
-        ALBEDO = 0,
-        DEPTH = 1,
-        NORMAL = 2,
-        GEOMETRY = 3,
-        OVERDRAW = 4,
-        PBR = 5,
-        FINAL = 6
-    };
-    
-
-
-    ImGuiUI::VisualizationOption selectedRenderMode() const ;
 
     //Batch functions
     struct BatchItem {
@@ -127,41 +98,16 @@ private:
         "PLY BRDF (base sRGB, N, MR)"
     };
 
-    int renderIndex = 0;
-    int prevRenderIndexBeforeLighting = 0;
-    const ImGuiUI::VisualizationOption renderOptions[7] = {
-        ImGuiUI::VisualizationOption::FINAL,
-        ImGuiUI::VisualizationOption::ALBEDO,
-        ImGuiUI::VisualizationOption::DEPTH,
-        ImGuiUI::VisualizationOption::NORMAL,
-        ImGuiUI::VisualizationOption::GEOMETRY,
-        ImGuiUI::VisualizationOption::OVERDRAW,
-        ImGuiUI::VisualizationOption::PBR
-    };
-    const char* renderLabels[7] = { "Final (Shaded)", "Albedo", "Depth", "Normals", "Geometry", "Overdraw", "PBR (metallic-roughness)"};
-
     float gaussian_std;
-    float lightIntensity = 0;
     bool runConversionFlag = false;
     bool loadNewMesh = false;
     bool batchLoadNewMeshes = false; 
     bool loadNewPly = false;
 
-    //Rendering flags
-    bool hasRenderModeChanged = false;
-
     bool hasPlyBeenLoaded = false;
     bool hasMeshBeenLoaded = false;
 
-    bool lightSelected = false;
-    bool lightingEnabled = false;
-
     bool savePly = false;
-
-    bool enableDepthTest = false;
-
-    bool splitScreenEnabled = false;
-    float splitScreenPosition = 0.5f;
 
     std::string meshFilePath;
     std::string meshParentFolder;
@@ -177,8 +123,6 @@ private:
 
     const float minStd = 0.1f;
     const float maxStd = 2.0f;
-    const float minLightIntensity = 0.0;
-    const float maxLightIntensity = 1000.0;
     int maxRes = 1024; //TBH not sure what best value is here
 
     std::vector<int> discreteResolutionOptions;
@@ -194,7 +138,6 @@ private:
     float targetFrameTimeThreshold = 16.6f; 
 
     glm::vec4 sceneBackgroundColor = { 0,0,0,1 };
-    glm::vec3 lightColor = { 1,1,1 };
 
     //Batching data
     std::vector<BatchItem> batchItems;

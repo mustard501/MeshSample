@@ -8,6 +8,7 @@
 #include <cstring>
 #include <functional>
 #include <thread>
+#include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -667,6 +668,24 @@ void SceneManager::exportPly(const std::string outputFile, unsigned int exportFo
     );
     
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+    auto isFiniteFloat = [](float v) { return std::isfinite(static_cast<double>(v)); };
+    for (size_t i = 0; i < cpuData.size(); ++i) {
+        const auto& g = cpuData[i];
+        const bool finite =
+            isFiniteFloat(g.position.x) && isFiniteFloat(g.position.y) && isFiniteFloat(g.position.z) &&
+            isFiniteFloat(g.color.x) && isFiniteFloat(g.color.y) && isFiniteFloat(g.color.z) && isFiniteFloat(g.color.w) &&
+            isFiniteFloat(g.scale.x) && isFiniteFloat(g.scale.y) && isFiniteFloat(g.scale.z) &&
+            isFiniteFloat(g.normal.x) && isFiniteFloat(g.normal.y) && isFiniteFloat(g.normal.z) &&
+            isFiniteFloat(g.rotation.x) && isFiniteFloat(g.rotation.y) && isFiniteFloat(g.rotation.z) && isFiniteFloat(g.rotation.w) &&
+            isFiniteFloat(g.pbr.x) && isFiniteFloat(g.pbr.y);
+        const bool validScale = (g.scale.x > 0.0f) && (g.scale.y > 0.0f) && (g.scale.z > 0.0f);
+        if (!finite || !validScale) {
+            std::cerr << "Export aborted: invalid gaussian at index " << i
+                      << " (non-finite value or non-positive scale)." << std::endl;
+            return;
+        }
+    }
 
     const bool writePixelCsv =
         renderContext.conversionPixelTableValid && renderContext.format == 0 && renderContext.numberOfGaussians > 0;

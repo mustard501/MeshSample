@@ -18,32 +18,6 @@ namespace glUtils
         std::string converterGeomShaderLocation;
         std::string eigenDecompositionShaderLocation;
         std::string converterFragShaderLocation;
-
-        std::string transformComputeShaderLocation;
-
-        std::string radixSortPrepassShaderLocation;
-        std::string radixSortGatherShaderLocation;
-
-        std::string rendererPrepassComputeShaderLocation;
-
-        std::string rendererVertexShaderLocation;
-        std::string rendererFragmentShaderLocation;
-
-        std::string rendererDeferredRelightingVertexShaderLocation;
-        std::string rendererDeferredRelightingFragmentShaderLocation;
-
-        std::string shadowsPrepassComputeShaderLocation;
-        std::string shadowsCubemapVertexShaderLocation;
-        std::string shadowsCubemapFragmentShaderLocation;
-
-        std::string depthPrepassVertexShaderLocation;
-        std::string depthPrepassFragmentShaderLocation;
-
-        std::string meshRenderVertexShaderLocation;
-        std::string meshRenderFragmentShaderLocation;
-
-        std::string commonShaderLocation;
-
     };
 
     extern ShaderLocations shaderLocations;
@@ -52,16 +26,6 @@ namespace glUtils
     enum ShaderProgramTypes
     {
         ConverterProgram,
-        ComputeTransformProgram,
-        RadixSortPrepassProgram,
-        RadixSortGatherComputeProgram,
-        PrepassFiltering3dgsProgram,
-        Rendering3dgsProgram,
-        DeferredRelightingPassProgram,
-        ShadowPrepassComputeProgram,
-        ShadowCubemapPassProgram,
-        DepthPrepassProgram,
-        MeshRenderProgram,
     };
 
     void initializeShaderLocations();

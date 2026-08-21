@@ -18,13 +18,6 @@ Renderer::Renderer(GLFWwindow* window, Camera& cameraInstance) : camera(cameraIn
     renderContext.gaussianBuffer                = 0;
     renderContext.conversionGaussianMetaBuffer  = 0;
     renderContext.conversionPixelTableValid     = false;
-    renderContext.gaussianDepthPostFiltering    = 0;
-    renderContext.drawIndirectBuffer            = 0;
-    renderContext.keysBuffer                    = 0;
-	renderContext.valuesBuffer                  = 0;
-    renderContext.perQuadTransformationBufferSorted = 0;
-    renderContext.perQuadTransformationsBuffer  = 0;
-    renderContext.atomicCounterBuffer = 0;
     renderContext.atomicCounterBufferConversionPass = 0;
 
     renderContext.normalizedUvSpaceWidth        = 0;
@@ -42,12 +35,6 @@ Renderer::Renderer(GLFWwindow* window, Camera& cameraInstance) : camera(cameraIn
     updateShadersIfNeeded(true); //Forcing compilation
     
     glGenVertexArrays(1, &(renderContext.vao));
-    
-    glGenBuffers(1, &(renderContext.keysBuffer));
-    glGenBuffers(1, &(renderContext.perQuadTransformationsBuffer));
-    glGenBuffers(1, &(renderContext.valuesBuffer));
-    glGenBuffers(1, &(renderContext.perQuadTransformationBufferSorted));
-    glGenBuffers(1, &(renderContext.gaussianDepthPostFiltering));
     glGenBuffers(1, &(renderContext.gaussianBuffer));
     glGenBuffers(1, &(renderContext.conversionGaussianMetaBuffer));
 
@@ -59,13 +46,6 @@ Renderer::Renderer(GLFWwindow* window, Camera& cameraInstance) : camera(cameraIn
         nullptr,
         GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    glUtils::resizeAndBindToPosSSBO<unsigned int>(MAX_GAUSSIANS_TO_SORT, renderContext.keysBuffer, 1);
-    glUtils::resizeAndBindToPosSSBO<unsigned int>(MAX_GAUSSIANS_TO_SORT, renderContext.valuesBuffer, 2);
-    glUtils::resizeAndBindToPosSSBO<glm::vec4>(MAX_GAUSSIANS_TO_SORT * 6, renderContext.perQuadTransformationBufferSorted, 3);
-    glUtils::resizeAndBindToPosSSBO<glm::vec4>(MAX_GAUSSIANS_TO_SORT * 6, renderContext.perQuadTransformationsBuffer, 4);
-    glUtils::resizeAndBindToPosSSBO<float>(MAX_GAUSSIANS_TO_SORT, renderContext.gaussianDepthPostFiltering, 5);
-
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     for (size_t i = 0; i < 10; ++i) {
         GLuint query;
@@ -73,38 +53,13 @@ Renderer::Renderer(GLFWwindow* window, Camera& cameraInstance) : camera(cameraIn
         renderContext.queryPool.push_back(query);
     }
 
-    // First atomic counter
-    glGenBuffers(1, &renderContext.atomicCounterBuffer);
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, renderContext.atomicCounterBuffer);
-    glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
-
-    GLuint zeroVal = 0;
-    glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &zeroVal);
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-
     // Second atomic counter
     glGenBuffers(1, &renderContext.atomicCounterBufferConversionPass);
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, renderContext.atomicCounterBufferConversionPass);
     glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
+    GLuint zeroVal = 0;
     glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), &zeroVal);
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
-
-    //Indirect buff
-    glGenBuffers(1, &(renderContext.drawIndirectBuffer));
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, renderContext.drawIndirectBuffer);
-    glBufferData(GL_DRAW_INDIRECT_BUFFER,
-                    sizeof(IRenderPass::DrawElementsIndirectCommand),
-                    nullptr,
-                    GL_DYNAMIC_DRAW);
-
-    IRenderPass::DrawElementsIndirectCommand cmd_init;
-    cmd_init.count         = 6;  
-    cmd_init.instanceCount = 0;
-    cmd_init.first         = 0;
-    cmd_init.baseVertex    = 0;
-    cmd_init.baseInstance  = 0;
-
-    glBufferSubData(GL_DRAW_INDIRECT_BUFFER, 0, sizeof(IRenderPass::DrawElementsIndirectCommand), &cmd_init);
 
 }
 
@@ -114,13 +69,7 @@ Renderer::~Renderer()
 
     glDeleteBuffers(1, &(renderContext.gaussianBuffer));
     glDeleteBuffers(1, &(renderContext.conversionGaussianMetaBuffer));
-    glDeleteBuffers(1, &(renderContext.drawIndirectBuffer));
-    glDeleteBuffers(1, &(renderContext.keysBuffer));
-    glDeleteBuffers(1, &(renderContext.valuesBuffer));
-    glDeleteBuffers(1, &(renderContext.perQuadTransformationBufferSorted));
-    glDeleteBuffers(1, &(renderContext.gaussianDepthPostFiltering));
-
-    deleteMeshGBuffer();
+    glDeleteBuffers(1, &(renderContext.atomicCounterBufferConversionPass));
 
     for (auto& query : renderContext.queryPool) {
         glDeleteQueries(1, &query);
@@ -129,29 +78,11 @@ Renderer::~Renderer()
 
 void Renderer::initialize() {
 
-    renderPasses[conversionPassName]                    = std::make_unique<ConversionPass>();
-    renderPasses[depthPrepassName]                      = std::make_unique<DepthPrepass>();
-    renderPasses[gaussiansPrePassName]                  = std::make_unique<GaussiansPrepass>();
-    renderPasses[radixSortPassName]                     = std::make_unique<RadixSortPass>();
-    renderPasses[gaussianSplattingPassName]             = std::make_unique<GaussianSplattingPass>(renderContext);
-    renderPasses[gaussianSplattingRelightingPassName]   = std::make_unique<GaussianRelightingPass>();
-    renderPasses[gaussianSplattingShadowsPassName]      = std::make_unique<GaussianShadowPass>(renderContext);
-    renderPasses[meshRenderPassName]                    = std::make_unique<MeshRenderPass>();
+    renderPasses[conversionPassName] = std::make_unique<ConversionPass>();
 
     renderPassesOrder = {
-        conversionPassName,
-        depthPrepassName,
-        meshRenderPassName,
-        gaussiansPrePassName,
-        radixSortPassName,
-        gaussianSplattingPassName,
-        gaussianSplattingShadowsPassName,
-        gaussianSplattingRelightingPassName
+        conversionPassName
     };
-
-    createDepthTexture();
-    createGBuffer();
-    createMeshGBuffer();
 }
 
 void Renderer::renderFrame()
@@ -273,12 +204,6 @@ void Renderer::setStdDevFromImGui(float stdDev)
     renderContext.gaussianStd = stdDev;
 }
 
-void Renderer::setRenderMode(ImGuiUI::VisualizationOption selectedRenderMode)
-{
-    //HM: https://stackoverflow.com/questions/14589417/can-an-enum-class-be-converted-to-the-underlying-type (I just one-lined it)
-    renderContext.renderMode = static_cast<std::underlying_type<ImGuiUI::VisualizationOption>::type>(selectedRenderMode);
-}
-
 SceneManager& Renderer::getSceneManager()
 {
     return *sceneManager;
@@ -289,153 +214,6 @@ double Renderer::getTotalGpuFrameTimeMs() const { return gpuFrameTimeMs; }
 void Renderer::resetModelMatrices()
 {
     renderContext.modelMat = glm::mat4(1.0f);
-}
-
-void Renderer::createDepthTexture()
-{
-    resetRendererViewportResolution();
-    glGenFramebuffers(1, &renderContext.depthFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, renderContext.depthFBO);
-
-    glGenTextures(1, &renderContext.meshDepthTexture);
-    glBindTexture(GL_TEXTURE_2D, renderContext.meshDepthTexture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, renderContext.rendererResolution.x, renderContext.rendererResolution.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-
-   glFramebufferTexture2D(
-       GL_FRAMEBUFFER,
-       GL_DEPTH_ATTACHMENT,
-       GL_TEXTURE_2D,
-       renderContext.meshDepthTexture,
-       0
-   );
-   
-   glDrawBuffer(GL_NONE);
-   glReadBuffer(GL_NONE);
-}
-
-void Renderer::deleteDepthTexture()
-{
-    glDeleteFramebuffers(1, &renderContext.depthFBO);
-    glDeleteTextures(1, &renderContext.meshDepthTexture);
-
-    renderContext.depthFBO          = 0;
-    renderContext.meshDepthTexture  = 0;
-}
-
-void Renderer::setDepthTestEnabled(bool depthTest)
-{
-    renderContext.performMeshDepthTest = depthTest;
-}
-
-void Renderer::createGBuffer()
-{
-    resetRendererViewportResolution();
-
-    glGenFramebuffers(1, &renderContext.gBufferFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, renderContext.gBufferFBO);
-
-    // G-Buffer
-    glGenTextures(1, &renderContext.gPosition);
-    glBindTexture(GL_TEXTURE_2D, renderContext.gPosition);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, renderContext.rendererResolution.x, renderContext.rendererResolution.y, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderContext.gPosition, 0);
-
-    //I need to blend this so I need the alpha
-    glGenTextures(1, &renderContext.gNormal);
-    glBindTexture(GL_TEXTURE_2D, renderContext.gNormal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, renderContext.rendererResolution.x, renderContext.rendererResolution.y, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, renderContext.gNormal, 0);
-
-    glGenTextures(1, &renderContext.gAlbedo);
-    glBindTexture(GL_TEXTURE_2D, renderContext.gAlbedo);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, renderContext.rendererResolution.x, renderContext.rendererResolution.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, renderContext.gAlbedo, 0);
-
-    //I need to use my own blending function for depth, (more like: I want to)
-    glGenTextures(1, &renderContext.gDepth);
-    glBindTexture(GL_TEXTURE_2D, renderContext.gDepth);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, renderContext.rendererResolution.x, renderContext.rendererResolution.y, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, renderContext.gDepth, 0);
-
-    glGenTextures(1, &renderContext.gMetallicRoughness);
-    glBindTexture(GL_TEXTURE_2D, renderContext.gMetallicRoughness);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, renderContext.rendererResolution.x, renderContext.rendererResolution.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, renderContext.gMetallicRoughness, 0);
-    
-
-    std::vector<GLenum> attachments = {
-        GL_COLOR_ATTACHMENT0,
-        GL_COLOR_ATTACHMENT1,
-        GL_COLOR_ATTACHMENT2,
-        GL_COLOR_ATTACHMENT3,
-        GL_COLOR_ATTACHMENT4
-    };
-
-    glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-        std::cerr << "GBuffer FBO not complete!" << std::endl;
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void Renderer::deleteGBuffer()
-{
-    glDeleteFramebuffers(1, &renderContext.gBufferFBO);
-    glDeleteTextures(1, &renderContext.gPosition);
-    glDeleteTextures(1, &renderContext.gNormal);
-    glDeleteTextures(1, &renderContext.gAlbedo);
-    glDeleteTextures(1, &renderContext.gDepth);
-    glDeleteTextures(1, &renderContext.gMetallicRoughness);
-
-    renderContext.gBufferFBO    = 0;
-    renderContext.gPosition     = 0;
-    renderContext.gNormal       = 0;
-    renderContext.gAlbedo       = 0;
-    renderContext.gDepth        = 0;
-}
-
-	
-void Renderer::setLightingEnabled(bool isEnabled)
-{
-    renderContext.pointLightData.lightingEnabled = isEnabled;
-}
-
-void Renderer::setLightIntensity(float lightIntensity)
-{
-    renderContext.pointLightData.lightIntensity = lightIntensity;
-}
-
-void Renderer::setLightColor(glm::vec3 lightColor)
-{
-    renderContext.pointLightData.lightColor = lightColor;
-}
-
-bool Renderer::hasWindowSizeChanged()
-{
-    int width, height;
-    glfwGetFramebufferSize(rendererGlfwWindow, &width, &height);
-    return renderContext.rendererResolution != glm::ivec2(width, height);
 }
 
 bool Renderer::isWindowMinimized()
@@ -465,15 +243,7 @@ bool Renderer::updateShadersIfNeeded(bool forceReload) {
 
 unsigned int Renderer::getVisibleGaussianCount()
 {
-    if (this->renderContext.atomicCounterBuffer)
-    {
-        uint32_t validCount = 0;
-        glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, renderContext.atomicCounterBuffer);
-        glGetBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(uint32_t), &validCount);
-        
-        return validCount;
-    }
-    return 0;
+    return this->renderContext.numberOfGaussians;
 
 }
 
@@ -481,103 +251,5 @@ unsigned int Renderer::getTotalGaussianCount()
 {
     return this->renderContext.numberOfGaussians;
 
-}
-
-void Renderer::createMeshGBuffer()
-{
-    resetRendererViewportResolution();
-    int w = renderContext.rendererResolution.x;
-    int h = renderContext.rendererResolution.y;
-
-    glGenFramebuffers(1, &renderContext.meshGBufferFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, renderContext.meshGBufferFBO);
-
-    // Position
-    glGenTextures(1, &renderContext.meshGPosition);
-    glBindTexture(GL_TEXTURE_2D, renderContext.meshGPosition);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, w, h, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderContext.meshGPosition, 0);
-
-    // Normal
-    glGenTextures(1, &renderContext.meshGNormal);
-    glBindTexture(GL_TEXTURE_2D, renderContext.meshGNormal);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, w, h, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, renderContext.meshGNormal, 0);
-
-    // Albedo
-    glGenTextures(1, &renderContext.meshGAlbedo);
-    glBindTexture(GL_TEXTURE_2D, renderContext.meshGAlbedo);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, renderContext.meshGAlbedo, 0);
-
-    // Depth
-    glGenTextures(1, &renderContext.meshGDepth);
-    glBindTexture(GL_TEXTURE_2D, renderContext.meshGDepth);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, w, h, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, renderContext.meshGDepth, 0);
-
-    // Metallic-Roughness
-    glGenTextures(1, &renderContext.meshGMetallicRoughness);
-    glBindTexture(GL_TEXTURE_2D, renderContext.meshGMetallicRoughness);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, renderContext.meshGMetallicRoughness, 0);
-
-    std::vector<GLenum> attachments = {
-        GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,
-        GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4
-    };
-    glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
-
-    // Depth renderbuffer
-    glGenRenderbuffers(1, &renderContext.meshGDepthRBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, renderContext.meshGDepthRBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderContext.meshGDepthRBO);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-        std::cerr << "Mesh GBuffer FBO not complete!" << std::endl;
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void Renderer::deleteMeshGBuffer()
-{
-    glDeleteFramebuffers(1, &renderContext.meshGBufferFBO);
-    glDeleteTextures(1, &renderContext.meshGPosition);
-    glDeleteTextures(1, &renderContext.meshGNormal);
-    glDeleteTextures(1, &renderContext.meshGAlbedo);
-    glDeleteTextures(1, &renderContext.meshGDepth);
-    glDeleteTextures(1, &renderContext.meshGMetallicRoughness);
-    glDeleteRenderbuffers(1, &renderContext.meshGDepthRBO);
-
-    renderContext.meshGBufferFBO = 0;
-    renderContext.meshGPosition = 0;
-    renderContext.meshGNormal = 0;
-    renderContext.meshGAlbedo = 0;
-    renderContext.meshGDepth = 0;
-    renderContext.meshGMetallicRoughness = 0;
-    renderContext.meshGDepthRBO = 0;
-}
-
-void Renderer::setSplitScreenEnabled(bool enabled)
-{
-    renderContext.splitScreenEnabled = enabled;
-}
-
-void Renderer::setSplitScreenPosition(float position)
-{
-    renderContext.splitScreenPosition = position;
 }
 

@@ -192,11 +192,7 @@ void ImGuiUI::renderPropertiesWindow()
 
     ImGui::Begin("Properties");
 
-    ImGui::Combo("Property visualization", &renderIndex, renderLabels, IM_ARRAYSIZE(renderLabels));
-    ImGui::Checkbox("Enable mesh-gaussian depth test (improves rendering performance)", &enableDepthTest);
-
-    //TODO: right now std_dev is not updated in the actual gaussianBuffer, just during rendering. Need to consider this when exporting
-    if (ImGui::SliderFloat("Gaussian Scale", &gaussian_std, minStd, maxStd, "%.2f"));
+    ImGui::SliderFloat("Gaussian Scale", &gaussian_std, minStd, maxStd, "%.2f");
 
     ImGui::SeparatorText("Sampling density settings");
 
@@ -217,20 +213,6 @@ void ImGuiUI::renderPropertiesWindow()
         }
     }
 
-    ImGui::Dummy(ImVec2(0, 2.0f));
-    ImGui::SeparatorText("##");
-    ImGui::Dummy(ImVec2(0, 1.0f));
-
-
-    ImGui::ColorEdit4("Background Color", &sceneBackgroundColor.x);
-
-    ImGui::SeparatorText("Split-Screen Comparison");
-    ImGui::Checkbox("Enable split-screen (Mesh vs Splat)", &splitScreenEnabled);
-    if (splitScreenEnabled)
-    {
-        ImGui::SliderFloat("Split position", &splitScreenPosition, 0.0f, 1.0f, "%.2f");
-    }
-
     ImGui::End();
 }
 
@@ -240,73 +222,7 @@ void ImGuiUI::renderUI()
     renderFileSelectorWindow();
     renderPropertiesWindow();
     renderGpuFrametime();
-    renderLightingSettings();
     renderBatchWindow();
-}
-
-void ImGuiUI::renderGizmoUi(glm::mat4& glmViewMat, glm::mat4& glmProjMat, glm::mat4& glmModelMat)
-{
-    ImGui::SetNextWindowPos(ImVec2(100, 400), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(350, 200), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Gizmo Control");
-
-    static ImGuizmo::OPERATION currentOperation = ImGuizmo::TRANSLATE;
-    static ImGuizmo::MODE currentMode = ImGuizmo::LOCAL;
-
-    ImGui::SeparatorText("Operation");
-    if (ImGui::RadioButton("Translate", currentOperation == ImGuizmo::TRANSLATE))
-        currentOperation = ImGuizmo::TRANSLATE;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Rotate", currentOperation == ImGuizmo::ROTATE))
-        currentOperation = ImGuizmo::ROTATE;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Scale", currentOperation == ImGuizmo::SCALE))
-        currentOperation = ImGuizmo::SCALE;
-        
-
-    if (currentOperation != ImGuizmo::SCALE)
-    {
-        ImGui::SeparatorText("Reference System");
-        if (ImGui::RadioButton("Local", currentMode == ImGuizmo::LOCAL))
-            currentMode = ImGuizmo::LOCAL;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("World", currentMode == ImGuizmo::WORLD))
-            currentMode = ImGuizmo::WORLD;
-    }
-
-    if (isLightingEnabled())
-    {
-        ImGui::SeparatorText("Object selector");
-        if (ImGui::RadioButton("Model", !lightSelected))
-            lightSelected = false;
-        ImGui::SameLine();
-        if (ImGui::RadioButton("Light", lightSelected) && lightingEnabled)
-            lightSelected = true;
-    }
-
-
-
-    ImGui::End();
-
-    ImGuizmo::BeginFrame();
-    ImGuizmo::SetOrthographic(false);
-    ImGuizmo::SetDrawlist(ImGui::GetBackgroundDrawList());
-
-    ImGuiIO& io = ImGui::GetIO();
-    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-
-    float view[16], proj[16], model[16];
-
-    std::memcpy(view,   glm::value_ptr(glmViewMat),     16 * sizeof(float));
-    std::memcpy(proj,   glm::value_ptr(glmProjMat),     16 * sizeof(float));
-    std::memcpy(model,  glm::value_ptr(glmModelMat),    16 * sizeof(float));
-
-    bool manipulated = ImGuizmo::Manipulate(view, proj, currentOperation, currentMode, model);
-    if (manipulated)
-    {
-        glmModelMat = glm::make_mat4(model);
-    }
-
 }
 
 void ImGuiUI::renderGpuFrametime()
@@ -352,37 +268,6 @@ void ImGuiUI::renderGpuFrametime()
     ImGui::SliderFloat("Max Scale", &maxPlotTimeMs, 16.6f, 100.0f, "%.1f ms");
     ImGui::SliderFloat("Target Line", &targetFrameTimeThreshold, 8.3f, 50.0f, "%.1f ms");
     
-    ImGui::End();
-}
-
-void ImGuiUI::renderLightingSettings()
-{
-    ImGui::SetNextWindowPos(ImVec2(500, 500), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(250, 80), ImGuiCond_FirstUseEver);
-
-    ImGui::Begin("Lighting");
-
-    bool wasLightingEnabled = lightingEnabled;
-    ImGui::Checkbox("Enable lighting", &lightingEnabled);
-
-    // Auto-select "Final (Shaded)" when lighting is toggled on
-    if (lightingEnabled && !wasLightingEnabled)
-    {
-        prevRenderIndexBeforeLighting = renderIndex;
-        renderIndex = 0; // Final (Shaded) is index 0
-    }
-    // Revert to previous mode when lighting is toggled off
-    else if (!lightingEnabled && wasLightingEnabled)
-    {
-        renderIndex = prevRenderIndexBeforeLighting;
-    }
-
-    if (lightingEnabled)
-    {
-        ImGui::SliderFloat("Light intensity", &lightIntensity, minLightIntensity, maxLightIntensity, "%2.0f");
-        ImGui::ColorEdit3("Light Color", &lightColor.x);
-    } else lightSelected = false;
-
     ImGui::End();
 }
 
@@ -433,7 +318,7 @@ void ImGuiUI::renderBatchWindow()
         }
         ImGui::PopStyleColor();
         ImGui::SameLine();
-        ImGui::TextUnformatted("(Running� conversions are dispatched by app loop)");
+        ImGui::TextUnformatted("(Running: conversions are dispatched by app loop)");
     }
 
     // Progress
@@ -537,16 +422,13 @@ bool ImGuiUI::shouldSavePly() const { return savePly; } ;
 std::string ImGuiUI::getMeshFilePath() const { return meshFilePath; };
 std::string ImGuiUI::getMeshFilePathParentFolder() const {return meshParentFolder;};
 std::string ImGuiUI::getMeshFullFilePathDestination() const {
-    
-    if (utils::getFileExtension(std::string(outputFilename)) == utils::ModelFileExtension::NONE)
-    {
-        return destinationFilePathFolder + "/" + std::string(outputFilename) + ".ply";
+    const std::string outName = std::string(outputFilename);
+    const std::string outDir = destinationFilePathFolder.empty() ? "." : destinationFilePathFolder;
+    if (utils::getFileExtension(outName) == utils::ModelFileExtension::PLY) {
+        return outDir + "/" + outName;
     }
-    else if (utils::getFileExtension(std::string(outputFilename)) == utils::ModelFileExtension::PLY)
-    {
-        return destinationFilePathFolder + "/" + std::string(outputFilename);
-    }
-};
+    return outDir + "/" + outName + ".ply";
+}
 
 std::string ImGuiUI::getPlyFilePath() const { return std::string(plyFilePath); };
 std::string ImGuiUI::getPlyFilePathParentFolder() const { return plyParentFolder; };
@@ -562,9 +444,6 @@ int ImGuiUI::getResolutionTarget() const
     return discreteResolutionOptions[discreteResolutionIndex];
 }
 
-//renderModeSelector
-ImGuiUI::VisualizationOption ImGuiUI::selectedRenderMode() const { return renderOptions[renderIndex]; };
-
 void ImGuiUI::setLoadNewMesh(bool shouldLoadNewMesh) { loadNewMesh = shouldLoadNewMesh; };
 void ImGuiUI::setMeshLoaded(bool loaded) { hasMeshBeenLoaded = loaded; };
 
@@ -576,7 +455,6 @@ void ImGuiUI::setShouldSavePly(bool shouldSavePly) { savePly = shouldSavePly; };
 
 void ImGuiUI::setFrameMetrics(double gpuFrameTime) {
     this->gpuFrameTime = static_cast<float>(gpuFrameTime);
-    this->gpuFrameTime = static_cast<float>(gpuFrameTime);
     
     // Rolling buffer as vector
     if(frameTimeHistory.size() >= MAX_FRAME_HISTORY) {
@@ -585,17 +463,6 @@ void ImGuiUI::setFrameMetrics(double gpuFrameTime) {
 
     frameTimeHistory.push_back(this->gpuFrameTime);
 }
-
-bool ImGuiUI::isLightSelected() const { return lightSelected; };
-bool ImGuiUI::isLightingEnabled() const { return lightingEnabled; };
-float ImGuiUI::getLightIntensity() const { return lightIntensity; };
-glm::vec3 ImGuiUI::getLightColor() const { return lightColor; };
-
-void ImGuiUI::setEnableDepthTest(bool depthTest) { enableDepthTest = depthTest; }
-bool ImGuiUI::getIsDepthTestEnabled() const { return enableDepthTest; }
-
-bool ImGuiUI::isSplitScreenEnabled() const { return splitScreenEnabled; }
-float ImGuiUI::getSplitScreenPosition() const { return splitScreenPosition; }
 
 //TODO: batching utility code, I think refactor is needed to move batching logic to separate file, for later refactor pass
 void ImGuiUI::enqueueFolder(const std::string& dir)

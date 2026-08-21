@@ -83,32 +83,6 @@ namespace glUtils
         shaderLocations.converterGeomShaderLocation                     = (shadersBase / "conversion" / "converterGS.glsl").string();
         shaderLocations.eigenDecompositionShaderLocation                = (shadersBase / "conversion" / "eigendecomposition.glsl").string();
         shaderLocations.converterFragShaderLocation                     = (shadersBase / "conversion" / "converterFS.glsl").string();
-
-        shaderLocations.transformComputeShaderLocation                  = (shadersBase / "rendering" / "frameBufferReaderCS.glsl").string();
-
-        shaderLocations.radixSortPrepassShaderLocation                  = (shadersBase / "rendering" / "radixSortPrepass.glsl").string();
-        shaderLocations.radixSortGatherShaderLocation                   = (shadersBase / "rendering" / "radixSortGather.glsl").string();
-
-        shaderLocations.rendererPrepassComputeShaderLocation            = (shadersBase / "rendering" / "gaussianSplattingPrepassCS.glsl").string();
-
-        shaderLocations.rendererVertexShaderLocation                    = (shadersBase / "rendering" / "gaussianSplattingVS.glsl").string();
-        shaderLocations.rendererFragmentShaderLocation                  = (shadersBase / "rendering" / "gaussianSplattingPS.glsl").string();
-
-        shaderLocations.rendererDeferredRelightingVertexShaderLocation  = (shadersBase / "rendering" / "gaussianSplattingDeferredVS.glsl").string();
-        shaderLocations.rendererDeferredRelightingFragmentShaderLocation = (shadersBase / "rendering" / "gaussianSplattingDeferredPS.glsl").string();
-
-        shaderLocations.shadowsPrepassComputeShaderLocation             = (shadersBase / "rendering" / "gaussianPointShadowMappingCS.glsl").string();
-        shaderLocations.shadowsCubemapVertexShaderLocation              = (shadersBase / "rendering" / "gaussianPointLightCubeMapShadowVS.glsl").string();
-        shaderLocations.shadowsCubemapFragmentShaderLocation            = (shadersBase / "rendering" / "gaussianPointLightCubeMapShadowPS.glsl").string();
-
-        shaderLocations.depthPrepassVertexShaderLocation                = (shadersBase / "rendering" / "depthPrepassVS.glsl").string();
-        shaderLocations.depthPrepassFragmentShaderLocation                = (shadersBase / "rendering" / "depthPrepassPS.glsl").string();
-
-        shaderLocations.meshRenderVertexShaderLocation                   = (shadersBase / "rendering" / "meshRenderVS.glsl").string();
-        shaderLocations.meshRenderFragmentShaderLocation                 = (shadersBase / "rendering" / "meshRenderPS.glsl").string();
-
-        shaderLocations.commonShaderLocation                             = (shadersBase / "rendering" / "common.glsl").string();
-
     }
 
     void initializeShaderFileMonitoring(ShaderRegistry& shaderRegistry)
@@ -119,59 +93,6 @@ namespace glUtils
             { shaderLocations.converterGeomShaderLocation, GL_GEOMETRY_SHADER },
             { shaderLocations.converterFragShaderLocation, GL_FRAGMENT_SHADER }
         });
-        shaderRegistry.registerShaderProgram(ShaderProgramTypes::ComputeTransformProgram, {
-            { shaderLocations.transformComputeShaderLocation, GL_COMPUTE_SHADER }
-        });
-
-        // SORTING
-        shaderRegistry.registerShaderProgram(ShaderProgramTypes::RadixSortPrepassProgram, {
-            { shaderLocations.radixSortPrepassShaderLocation, GL_COMPUTE_SHADER }
-        });
-        shaderRegistry.registerShaderProgram(ShaderProgramTypes::RadixSortGatherComputeProgram, {
-            { shaderLocations.radixSortGatherShaderLocation, GL_COMPUTE_SHADER }
-        });
-
-        // 3DGS RENDERING
-        shaderRegistry.registerShaderProgram(ShaderProgramTypes::PrepassFiltering3dgsProgram, {
-            { shaderLocations.rendererPrepassComputeShaderLocation, GL_COMPUTE_SHADER }
-        });
-        shaderRegistry.registerDependency(ShaderProgramTypes::PrepassFiltering3dgsProgram, shaderLocations.commonShaderLocation);
-
-        shaderRegistry.registerShaderProgram(ShaderProgramTypes::Rendering3dgsProgram, {
-            { shaderLocations.rendererVertexShaderLocation, GL_VERTEX_SHADER },
-            { shaderLocations.rendererFragmentShaderLocation, GL_FRAGMENT_SHADER }
-        });
-
-        // DEFERRED LIGHTING PASS
-        shaderRegistry.registerShaderProgram(ShaderProgramTypes::DeferredRelightingPassProgram, {
-            { shaderLocations.rendererDeferredRelightingVertexShaderLocation, GL_VERTEX_SHADER },
-            { shaderLocations.rendererDeferredRelightingFragmentShaderLocation, GL_FRAGMENT_SHADER }
-        });
-
-        // SHADOW PASS
-        shaderRegistry.registerShaderProgram(ShaderProgramTypes::ShadowPrepassComputeProgram, {
-            { shaderLocations.shadowsPrepassComputeShaderLocation, GL_COMPUTE_SHADER }
-        });
-        shaderRegistry.registerDependency(ShaderProgramTypes::ShadowPrepassComputeProgram, shaderLocations.commonShaderLocation);
-        shaderRegistry.registerShaderProgram(ShaderProgramTypes::ShadowCubemapPassProgram, {
-            { shaderLocations.shadowsCubemapVertexShaderLocation, GL_VERTEX_SHADER },
-            { shaderLocations.shadowsCubemapFragmentShaderLocation, GL_FRAGMENT_SHADER }
-        });
-
-        //MESH DEPTH RENDERING
-        shaderRegistry.registerShaderProgram(ShaderProgramTypes::DepthPrepassProgram, {
-            { shaderLocations.depthPrepassVertexShaderLocation, GL_VERTEX_SHADER },
-            { shaderLocations.depthPrepassFragmentShaderLocation, GL_FRAGMENT_SHADER }
-        });
-
-        //MESH COLOR RENDERING (split-screen)
-        shaderRegistry.registerShaderProgram(ShaderProgramTypes::MeshRenderProgram, {
-            { shaderLocations.meshRenderVertexShaderLocation, GL_VERTEX_SHADER },
-            { shaderLocations.meshRenderFragmentShaderLocation, GL_FRAGMENT_SHADER }
-        });
-        shaderRegistry.registerDependency(ShaderProgramTypes::MeshRenderProgram, shaderLocations.commonShaderLocation);
-
-
     }
 
     bool shaderFileChanged(const ShaderFileEditingInfo& info) {

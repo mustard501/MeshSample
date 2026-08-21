@@ -12,16 +12,6 @@
 enum PassesDebugIDs
 {
     CONVERSION_PASS                     = 0,
-    CONVERSION_AGGREGATION_PASS         = 1,
-    RADIX_SORT_KEYSVALUE                = 2,
-    RADIX_SORT_MAIN                     = 3,
-    RADIX_SORT_GATHER                   = 4,
-    GAUSSIAN_SPLATTING_PREPASS          = 5,
-    GAUSSIAN_SPLATTING_RENDER           = 6,
-    GAUSSIAN_SPLATTING_RELIGHTING       = 7,
-    GAUSSIAN_SPLATTING_SHADOW_PREPASS   = 8,
-    GAUSSIAN_SPLATTING_SHADOW_CUBEMAP   = 9,
-    DEPTH_PREPASS   = 10,
 };
 
 //TODO: split up in sub contexts
@@ -32,24 +22,11 @@ struct RenderContext {
     bool isWindowMinimized;
     int resolution;
     glm::ivec2 rendererResolution;
-    float gaussianStd;
+    float gaussianStd = 0.65f;
     glm::mat4 modelMat = glm::mat4(1);
     glm::mat4 viewMat = glm::mat4(1);
     glm::mat4 projMat = glm::mat4(1);
     glm::mat4 MVP; //TODO: yeah, assumes we will render with one single model mat
-
-    struct PointLightData
-    {
-        GLuint gaussianDepthPostFilteringUnified;
-        GLuint perQuadTransformationsUnified;
-        GLuint atomicCounterBufferPerFace[6];
-        glm::vec3 lightColor;
-        float lightIntensity;
-        GLuint m_shadowCubemap;
-        bool lightingEnabled;
-        glm::mat4 pointLightModel = glm::mat4(1.0); //For now supports only one light source
-    } pointLightData;
-
 
     glm::vec3 hfov_focal;
     glm::vec3 camPos;
@@ -67,21 +44,10 @@ struct RenderContext {
 
     // Resources
     GLuint vao;
-    GLuint framebuffer;
-    size_t vertexCount;
-    GLuint* drawBuffers; //TODO: BEWARE
     GLuint gaussianBuffer;
     /** Per-gaussian records from conversion (pixel + triangle id); see lod/non-merge/GaussianPixelTable.hpp */
     GLuint conversionGaussianMetaBuffer;
     bool conversionPixelTableValid = false;
-    GLuint gaussianDepthPostFiltering;
-    GLuint keysBuffer;
-    GLuint perQuadTransformationsBuffer;
-    GLuint valuesBuffer;
-    GLuint perQuadTransformationBufferSorted;
-
-    GLuint drawIndirectBuffer;
-    GLuint atomicCounterBuffer;
     GLuint atomicCounterBufferConversionPass;
     GLint numberOfGaussians;
 
@@ -96,33 +62,4 @@ struct RenderContext {
     std::vector<utils::GaussianDataSSBO> readGaussians;
     
     std::deque<GLuint> queryPool;
-
-    unsigned int renderMode; //0: color, 1: depth, 2: normal, 3: geometry
-
-    //Gbuffer
-    GLuint gBufferFBO = 0;
-
-    GLuint gPosition = 0;
-    GLuint gNormal = 0;
-    GLuint gAlbedo = 0;
-    GLuint gDepth = 0;
-    GLuint gMetallicRoughness = 0;
-
-    //Depth
-    GLuint depthFBO = 0;
-    GLuint meshDepthTexture = 0;
-    unsigned int performMeshDepthTest = false;
-
-    //Mesh G-buffer (split-screen comparison)
-    GLuint meshGBufferFBO = 0;
-    GLuint meshGPosition = 0;
-    GLuint meshGNormal = 0;
-    GLuint meshGAlbedo = 0;
-    GLuint meshGDepth = 0;
-    GLuint meshGMetallicRoughness = 0;
-    GLuint meshGDepthRBO = 0;
-
-    //Split-screen comparison
-    bool splitScreenEnabled = false;
-    float splitScreenPosition = 0.5f; // 0.0 = all mesh, 1.0 = all splat
 };
