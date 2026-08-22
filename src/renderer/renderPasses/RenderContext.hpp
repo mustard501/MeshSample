@@ -36,7 +36,7 @@ struct RenderContext {
     // Resources
     GLuint vao;
     GLuint gaussianBuffer;
-    /** Per-gaussian records from conversion (pixel + triangle id); see lod/non-merge/GaussianPixelTable.hpp */
+    /** Per-gaussian records from conversion (pixel + triangle id); see conversion/GaussianPixelTable.hpp */
     GLuint conversionGaussianMetaBuffer;
     bool conversionPixelTableValid = false;
     GLuint atomicCounterBufferConversionPass;

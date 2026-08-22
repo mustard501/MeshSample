@@ -22,7 +22,6 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${THIRD_PARTY_DIR})
 
-file(GLOB LOD_SOURCES ${CMAKE_SOURCE_DIR}/lod/non-merge/*.cpp)
 file(GLOB_RECURSE SOURCES 
         ${CMAKE_SOURCE_DIR}/src/*.cpp
         ${CMAKE_SOURCE_DIR}/src/*.hpp
@@ -34,7 +33,7 @@ file(GLOB IMGUI_SOURCES
         ${IMGUI_DIR}/*.hpp
         ${IMGUI_DIR}/*.h
 )
-list(APPEND SOURCES ${LOD_SOURCES} ${IMGUI_SOURCES})
+list(APPEND SOURCES ${IMGUI_SOURCES})
 
 file(GLOB IGFD_SOURCE
         ${IGFD_DIR}/*.cpp

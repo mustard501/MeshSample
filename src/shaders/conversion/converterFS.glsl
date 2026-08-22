@@ -29,7 +29,7 @@ struct GaussianVertex {
     vec4 pbr;
 };
 
-/** std430 mirrors C++ lod::ConversionGaussianMeta */
+/** std430 mirrors C++ conversion::ConversionGaussianMeta */
 struct ConversionMetaRecord {
     uint plyGaussianIndex;
     float glFragCoordX;

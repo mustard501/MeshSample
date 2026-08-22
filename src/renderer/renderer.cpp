@@ -4,7 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "renderer.hpp"
-#include "lod/non-merge/GaussianPixelTable.hpp"
+#include "conversion/GaussianPixelTable.hpp"
 
 //TODO: create a separete camera class, avoid it bloating and getting too messy
 
@@ -42,7 +42,7 @@ Renderer::Renderer(GLFWwindow* window) : renderContext {}
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderContext.conversionGaussianMetaBuffer);
     glBufferData(
         GL_SHADER_STORAGE_BUFFER,
-        static_cast<GLsizeiptr>(MAX_GAUSSIANS_TO_SORT) * sizeof(lod::ConversionGaussianMeta),
+        static_cast<GLsizeiptr>(MAX_GAUSSIANS_TO_SORT) * sizeof(conversion::ConversionGaussianMeta),
         nullptr,
         GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);

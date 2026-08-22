@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <string>
 
-namespace lod {
+namespace conversion {
 
 /** Matches std430 layout written by converterFS.glsl (binding 2). */
 struct ConversionGaussianMeta {
@@ -32,4 +32,4 @@ void exportGaussianPixelTableCsv(
     int gaussianCount,
     const ConversionGaussianMeta* metaRows);
 
-} // namespace lod
+} // namespace conversion

@@ -4,7 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ConversionPass.hpp"
-#include "lod/non-merge/GaussianPixelTable.hpp"
+#include "conversion/GaussianPixelTable.hpp"
 
 void ConversionPass::execute(RenderContext &renderContext)
 {
@@ -23,7 +23,7 @@ void ConversionPass::execute(RenderContext &renderContext)
     // We clamp to MAX_GAUSSIANS_TO_SORT since downstream buffers (sort, prepass) are fixed at that size
     maxGaussians = std::min(maxGaussians, static_cast<unsigned int>(MAX_GAUSSIANS_TO_SORT));
     GLsizeiptr bufferSize = static_cast<GLsizeiptr>(maxGaussians) * sizeof(glm::vec4) * 6;
-    const GLsizeiptr metaBufferSize = static_cast<GLsizeiptr>(maxGaussians) * sizeof(lod::ConversionGaussianMeta);
+    const GLsizeiptr metaBufferSize = static_cast<GLsizeiptr>(maxGaussians) * sizeof(conversion::ConversionGaussianMeta);
     GLint currentSize;
     
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderContext.gaussianBuffer);    

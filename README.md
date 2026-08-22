@@ -1,168 +1,182 @@
 # Mesh2Splat
-<div align="center">
-    <img src="./res/mesh2splatPipelineFinal.jpg" width="750px">
-</div>
 
-**Mesh2Splat** is a fast surface splatting approach used to convert 3D meshes into 3DGS [(3D Gaussian Splatting)](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) models by exploiting the rasterizer's interpolator.<br>Mesh2Splat comes with a **3DGS Renderer** to view the conversion results.<p>
+**Mesh2Splat** 将 **glTF Binary（`.glb`）** 网格在 GPU 上快速采样为 **3D Gaussian Splatting（3DGS）** 点云，并导出为 PLY。项目当前定位为 **mesh → 高斯采样与导出工具**，不再包含内置 GS 渲染预览。
 
-> "**What if we wanted to represent a synthetic object (3D model) in 3DGS format?**"
-
-Currently, the only way to do so is to generate a synthetic dataset (camera poses, image renders and initial sparse point cloud) of the 3D model, and then feed this into the 3DGS pipeline. This process can take several minutes, depending on the specific 3DGS pipeline and model used.
-<br>
-
-**Mesh2Splat** instead, by directly using the geometry, materials and texture information from the 3D model, rather than going through the classical 3DGS pipeline, is able to obtain a 3DGS representation of the input 3D models in milliseconds.<br>
-
-## Use Cases
-
-**Mesh2Splat** is built for fast and flexible integration into 3D Gaussian Splatting (3DGS) workflows, especially when traditional pipelines may be too slow or incompatible with certain scenarios. Below are some key use cases:
-
-- **3DGS-only Rendering Pipelines**  
-  Some 3DGS renderers do not support hybrid rendering (i.e., mixing triangle meshes and Gaussians). In these cases, Mesh2Splat enables direct conversion of mesh assets into pure 3DGS format, allowing them to be rendered natively without relying on slower optimization pipelines.
-
-- **Fast Initialization for 3DGS Optimization**  
-  When preparing a model for a 3DGS optimization pipeline (e.g., with new sets of images or altered appearance), having a good initial guess is crucial for faster convergence and better results. Mesh2Splat provides a geometry and texture informed initialization that can be used as a strong starting point for further refinement.
-
-- **Enhancing Traditional Renderers with Gaussian Primitives**  
-  In pipelines where triangle meshes are the primary representation but 3DGS rendering is supported, Mesh2Splat can be used to convert selected assets into Gaussians. This enables developers and artists to leverage the unique properties of Gaussians.
-
-
-## Features
-### Converter
-
-- **Direct 3D Model Processing**: Directly obtain a 3DGS model from a 3D mesh (only `.glb` format is supported for now).
-- **Sampling density**: you can easily tweak the sampling density (conversion quality) in the settings via a slider.
-- **Texture map support**: For now, Mesh2Splat supports the following texture maps:
-    - Diffuse
-    - Metallic-Roughness
-    - Normal
-- **Enhanced Performance**: Significantly reduce the time needed to transform a 3D mesh into a 3DGS.
-- **Relightability**: Can easily relight the gaussians given a renderer that supports it.
 <div align="center">
     <img src="./res/conversion.gif" width="850px">
 </div>
 
-**3D model by**: M. Pavlovic, “Sci-fi helmet model,” 2024, provided by Quixel. License: CC Attribution Share Alike 3.0. (https://creativecommons.org/licenses/by-sa/3.0/.), you can download it from [here](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/SciFiHelmet/glTF)
+---
 
-### 3DGS Renderer
+## 项目概览
 
-- **Visualization options**: albedo, normals, depth, geometry, overdraw and pbr properties.
-- **Gaussian shading**: supports PBR based shading.
-- **Lighting and shadows**: simple point light and omnidirectional shadow mapping.
-- **Shader hot-reload**: if you want to experiment with the shaders and 3DGS math, hot-reload is there to make your life easier.
-- **Mesh-Gaussian occlusion**: to improve performance you can use the "Enable mesh-gaussian depth test" to use the mesh as occluder in depth prepass.
+Mesh2Splat 直接利用网格的几何、UV 与 glTF PBR 材质（base color、metallic-roughness、normal），在正交 UV 空间中为每个 rasterized fragment 生成一个高斯，典型耗时在 **毫秒级**。
+
+**典型工作流：**
+
+1. 在 GUI 中加载 `.glb`
+2. 调整采样分辨率与 Gaussian Scale
+3. 导出 PLY（推荐 **BRDF 格式** 用于自定义 PBR 3DGS 管线）
+4. （可选）用 `convert.py` 将 BRDF PLY 拆成 per-attribute 的 SH PLY，便于调试
+
+BRDF PLY 字段定义见 [`docs/mesh_to_3dgs_tree_ply_params.md`](docs/mesh_to_3dgs_tree_ply_params.md)。
+
+---
+
+## 功能
+
+| 能力 | 说明 |
+|------|------|
+| 输入 | `.glb`（mesh → 采样）；`.ply`（仅加载已有 3DGS，可 re-export） |
+| 材质 | glTF 2.0 Metallic-Roughness：`baseColor`、MR 贴图、normal 贴图 |
+| IOR | 解析 `KHR_materials_ior`；无 extension 时默认 **1.5** |
+| 采样密度 | `Conversion resolution`（16…4096，2 的幂）与 `Gaussian Scale` 滑块 |
+| 批量 | UI 内 Batch 面板，对文件夹内多个 GLB 依次采样并导出 |
+| Shader 热重载 | 修改 `src/shaders/conversion/` 下 shader 后自动检测并重编译 |
+
+---
+
+## 环境要求
+
+- **Windows**（当前主要支持平台）
+- **CMake ≥ 3.21**（Visual Studio 2022 生成器）
+- **Visual Studio 2019 / 2022**，含 **「使用 C++ 的桌面开发」** 工作负载
+- 支持 **OpenGL 4.6** 的 GPU 与驱动
+
+第三方库已 vendored 于 `thirdParty/`（GLFW、GLEW、GLM、ImGui、tinygltf、xatlas 等），无需单独安装。
+
+---
+
+## 构建
+
+在项目根目录打开 **cmd** 或 **PowerShell**：
+
+```bat
+run_build_release.bat
+```
+
+或手动：
+
+```bat
+mkdir build
+cd build
+cmake ..
+cmake --build . --config Release
+cd ..
+```
+
+可执行文件输出路径：
+
+```
+bin/Release/Mesh2Splat.exe
+```
+
+Debug 构建可使用 `run_build_debug.bat`，输出在 `bin/Debug/`。
+
+---
+
+## 使用方法
+
+### 1. 启动
+
+运行 `bin/Release/Mesh2Splat.exe`，打开 ImGui 界面。
+
+### 2. 单次转换
+
+1. **File Selector → Select file to load**，选择 `.glb`
+2. 点击 **Convert Mesh to 3DGS**（加载 mesh 并触发 GPU 采样）
+3. **Properties** 中调整：
+   - **Gaussian Scale**：高斯在切平面上的尺度（影响导出 `scale_*`）
+   - **Max resolution (cap)** / **Conversion resolution (2^n)**：采样分辨率，越高高斯越多、越慢
+4. **Select output folder** 选择输出目录，填写文件名
+5. 在格式下拉框选择导出类型，点击 **Save splat**
+
+### 3. 导出格式
+
+| 选项 | 说明 |
+|------|------|
+| PLY Standard Format | 经典 3DGS PLY；同时写出 companion `.csv`（像素/三角面索引，调试用） |
+| PLY PBR | 带 metallic/roughness 的 PBR PLY |
+| PLY Compressed PBR | 压缩 PBR 格式 |
+| **PLY BRDF (base sRGB, N, MR)** | 自定义 BRDF 属性 PLY：`base_r/g/b`（sRGB）、法线、metallic、roughness、**ior**、opacity、scale、rotation |
+
+日常 BRDF 3DGS 管线请使用最后一项（format **3**）。
+
+### 4. 批量处理
+
+在 **Batch** 面板添加输入目录与输出规则，点击 **Run batch**。应用会在主循环中依次：加载 GLB → 采样 → 导出 PLY。
+
+### 5. 可选：`convert.py`（调试）
+
+将目录下 BRDF PLY 拆分为 albedo / normal / roughness / metallic 等 SH PLY，便于在外部查看器检查各通道：
+
+```bat
+pip install numpy plyfile
+python convert.py
+```
+
+默认处理当前目录下的 `1/` 文件夹；修改脚本末尾 `target_directory` 即可。
+
+---
+
+## 目录结构（简要）
+
+```
+src/
+  conversion/          # 采样 meta（GaussianPixelTable）与 CSV 导出
+  renderer/renderPasses/ConversionPass.cpp
+  shaders/conversion/  # 转换用 GLSL
+  utils/SceneManager.cpp   # GLB 解析、纹理上传、PLY 导出
+  imGuiUi/             # 操作界面
+docs/
+  mesh_to_3dgs_tree_ply_params.md   # BRDF PLY schema
+convert.py             # BRDF PLY → SH PLY（调试，非核心）
+```
+
+---
+
+## 限制
+
+- 仅支持 **三角面** glTF primitive；非三角形会被跳过
+- 贴图来自 **GLB 内嵌 image**；外部 URI 贴图路径未完整支持
+- 体积类内容（毛发、 foliage 等）不在设计目标内
+- 无内置 3DGS 实时预览窗口（界面以参数与导出为主）
+
+---
+
+## 引用
+
+```bibtex
+@misc{
+  scolari2025mesh2splat,
+  author = {Scolari, Stefano},
+  title = {Mesh2Splat: Fast mesh to 3D Gaussian splat conversion},
+  year = {2025},
+  howpublished = {\url{https://github.com/electronicarts/mesh2splat}},
+  note = {Extended and updated version of the author's Master's thesis at KTH.}
+}
+```
+
+---
+
+## Authors
 
 <div align="center">
-    <img src="./res/pbrShading.gif" width="850px">
+<b>Search for Extraordinary Experiences Division (SEED) - Electronic Arts</b><br>
+<a href="https://seed.ea.com">seed.ea.com</a><br>
+<a href="https://seed.ea.com"><img src="./res/seed-logo.png" width="150px"></a>
 </div>
 
-## Method
-The (current) core concept behind **Mesh2Splat** is rather simple:
-- Compute 3D model bounding box
-- Initialize a 2D covariance matrix for our 2D Gaussians as: <br>
-$`{\Sigma_{2D}} = \begin{bmatrix} \sigma^{2}_x & 0 \\\ 0 & \sigma^{2}_y \end{bmatrix}`$ <br><br> where: $`{\sigma_{x}}\sim {\sigma_{y}}\sim 0.65`$ <br>and $`{\rho} = 0`$
-- Then, for each triangle primitive in the Geometry Shader stage, we do the following:
-    - Apply triplanar orthogonal projection onto X,Y or Z face based on normal similarity and normalize in [-1, 1].
-    - Compute Jacobian matrix from *orthogonal UV space* to *3D space* for each triangle:  $`J = V \cdot (UV)^{-1} `$.
-    - Derive the 3D directions corresponding to texture axes $`u`$ and $`v`$, and calculate the magnitudes of the 3D derivative vectors.
-    - Multiply the found lengths by the 2D Gaussian´s standard deviation, this way we found the scaling factors along the directions aligned with the surface in 3D space.
-    - The packed scale values will be: 
-        - $`packedScale_x = log(length(Ju) * sigma_x)`$
-        - $`packedScale_y = log(length(Jv) * sigma_y)`$
-        - $`packedScale_z = log(1e-7)`$
-    
+Mesh2Splat 由 [Stefano Scolari](https://www.linkedin.com/in/stefano-scolari/) 在 [KTH](https://www.kth.se/en) 硕士论文与 [SEED](https://www.ea.com/seed) 实习期间创建。
 
-- Now that we have the **Scale** and **Rotation** for a *3D Gaussian* part of a specific triangle, emit one 3D Gaussian for each vertex of this triangle, setting their respective 3D position to the 3D position of the vertex, and in order to exploit the hardware interpolator, we set ```gl_Position = vec4(gs_in[i].normalizedUv * 2.0 - 1.0, 0.0, 1.0);```. This means that the rasterizer will interpolate these values and generate one 3D Gaussian per fragment in the orthogonal space.
-- Perform texture fetches and set this data per gaussian in Fragment Shader. 
-- Each fragment now atomically appends one gaussian into a shared [SSBO](https://www.khronos.org/opengl/wiki/Shader_Storage_Buffer_Object). 
+---
 
-## Performance
-Mesh2Splat is able to convert a 3D mesh into a 3DGS on average in **<0.5ms**.
-<br>
+## Contributing
 
+贡献前需签署 EA Contributor License Agreement（[CLA](https://electronicarts.na1.echosign.com/public/esignWidget?wid=CBFCIBAA3AAABLblqZhByHRvZqmltGtliuExmuV-WNzlaJGPhbSRg2ufuPsM3P0QmILZjLpkGslg24-UJtek*)）。
 
+---
 
-## Build Instructions (Windows)
+## License
 
-To build **Mesh2Splat**, follow the following steps:
-
-### Prerequisites
-
-- **CMake ≥ 3.21.1**  
-  Required to support **Visual Studio 2022** project generation. Older versions may default to unsupported generators.
-
-- **Visual Studio 2019 or 2022**  
-  Must include the **"Desktop development with C++"** workload. Make sure your CMake version is compatible with your Visual Studio version.
-
-- **OpenGL-compatible GPU and drivers**
-
-> 💡 If you're using Visual Studio 2022, make sure you're running CMake ≥ 3.21.1. Older versions (like 3.10 or 3.11) do **not** recognize VS 2022 and will fail to generate a solution.
-
-
-### Build Steps
-1. Open a terminal (`cmd` or `PowerShell`) in the project root directory.
-2. Run one of the provided batch scripts:
-   - `run_build_debug.bat`
-   - `run_build_release.bat`
-3. Open the `bin` folder and run the executable or open the `build` folder and open the `.sln` file
-     
-<br>
-
-   > **Tip**: Use the release build if you only need the final executable in optimized (Release) mode.
-
-
-## Limitations
-- Volumetric Data such as foliage, grass, hair, clouds, etc. has not being targeted and will probably not be converted correctly if using primitives different from triangles.<br>
-
-## How to Cite
-To cite this repository, click the **“Cite this repository”** button at the top of the GitHub page.  
-Alternatively, you can use the following BibTeX entry:
-```bibtex 
-@misc{
-scolari2025mesh2splat,
-author = {Scolari, Stefano},
-title = {Mesh2Splat: Fast mesh to 3D Gaussian splat conversion},
-year = {2025}, howpublished = {\url{https://github.com/electronicarts/mesh2splat}},
-note = {Extended and updated version of the author's Master's thesis at KTH.} 
-}
-```
-This work builds upon the authors Master Thesis work:
-```bibtex 
-@mastersthesis{
-scolari2024thesis,
-author = {Scolari, Stefano},
-title = {Mesh2Splat: Gaussian Splatting from 3D Geometry and Materials},
-school = {KTH Royal Institute of Technology},
-year = {2024},
-url = {https://urn.kb.se/resolve?urn=urn:nbn:se:kth:diva-359582}
-}
-```
-
-# Authors
-
-<div align="center">
-<b>Search for Extraordinary Experiences Division (SEED) - Electronic Arts
-<br>
-<a href="https://seed.ea.com">seed.ea.com</a>
-<br>
-<a href="https://seed.ea.com"><img src="./res/seed-logo.png" width="150px"></a>
-<br>
-SEED is a pioneering group within Electronic Arts, combining creativity with applied research.</b> <br>
-We explore, build, and help define the future of interactive entertainment.
-</p>
-
-Mesh2splat is an Electronic Arts project created by [Stefano Scolari](https://www.linkedin.com/in/stefano-scolari/) for his Master's Thesis at [KTH](https://www.kth.se/en) while interning at [SEED](https://www.ea.com/seed) and supervision of Martin Mittring (Principal Rendering Engineer at [SEED](https://www.ea.com/seed)) and Christopher Peters (Professor in HCI & Computer Graphics at [KTH](https://www.kth.se/en)).
-
-# Contributing
-
-Before you can contribute, EA must have a Contributor License Agreement (CLA) on file that has been signed by each contributor. You can sign [here](https://electronicarts.na1.echosign.com/public/esignWidget?wid=CBFCIBAA3AAABLblqZhByHRvZqmltGtliuExmuV-WNzlaJGPhbSRg2ufuPsM3P0QmILZjLpkGslg24-UJtek*).
-
-# License
-
-The source code is released under an open license as detailed in [LICENSE.txt](./LICENSE.txt)
-
-
-
-
-
-
-
+源码许可见 [LICENSE.txt](./LICENSE.txt)。

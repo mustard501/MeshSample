@@ -12,7 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "lod/non-merge/GaussianPixelTable.hpp"
+#include "conversion/GaussianPixelTable.hpp"
 
 SceneManager::SceneManager(RenderContext& context) : renderContext(context)
 {
@@ -699,14 +699,14 @@ void SceneManager::exportPly(const std::string outputFile, unsigned int exportFo
     const bool writePixelCsv =
         renderContext.conversionPixelTableValid && renderContext.format == 0 && renderContext.numberOfGaussians > 0;
 
-    std::vector<lod::ConversionGaussianMeta> metaCpu;
+    std::vector<conversion::ConversionGaussianMeta> metaCpu;
     if (writePixelCsv) {
         metaCpu.resize(renderContext.numberOfGaussians);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderContext.conversionGaussianMetaBuffer);
         glGetBufferSubData(
             GL_SHADER_STORAGE_BUFFER,
             0,
-            static_cast<GLsizeiptr>(renderContext.numberOfGaussians) * sizeof(lod::ConversionGaussianMeta),
+            static_cast<GLsizeiptr>(renderContext.numberOfGaussians) * sizeof(conversion::ConversionGaussianMeta),
             metaCpu.data());
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
@@ -719,14 +719,14 @@ void SceneManager::exportPly(const std::string outputFile, unsigned int exportFo
     const unsigned resolutionTargetCsv = renderContext.resolutionTarget;
     const auto gaussianCountCsv = renderContext.numberOfGaussians;
     const bool savePixelCsv = writePixelCsv;
-    const std::string csvCompanionPath = lod::plyOutputPathToCsvPath(outputFile);
+    const std::string csvCompanionPath = conversion::plyOutputPathToCsvPath(outputFile);
 
     std::thread(
         [=, data = std::move(cpuData), metaRows = std::move(metaCpu)]() mutable 
         {
             parsers::savePlyVector(outputFile, data, format, scaleMultiplier);
             if (savePixelCsv) {
-                lod::exportGaussianPixelTableCsv(
+                conversion::exportGaussianPixelTableCsv(
                     csvCompanionPath,
                     resolutionTargetCsv,
                     static_cast<int>(gaussianCountCsv),

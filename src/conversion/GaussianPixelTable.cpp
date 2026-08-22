@@ -3,12 +3,12 @@
 //        Copyright (c) 2025 Electronic Arts Inc. All rights reserved.       //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "lod/non-merge/GaussianPixelTable.hpp"
+#include "conversion/GaussianPixelTable.hpp"
 
 #include <fstream>
 #include <iomanip>
 
-namespace lod {
+namespace conversion {
 
 std::string plyOutputPathToCsvPath(const std::string& plyPath)
 {
@@ -35,7 +35,7 @@ void exportGaussianPixelTableCsv(
         return;
 
     out << std::setprecision(9) << std::fixed;
-    out << "# Mesh2Splat conversion pixel table (LOD aux)\n";
+    out << "# Mesh2Splat conversion pixel table\n";
     out << "# resolutionTarget=" << resolutionTarget << "\n";
     out << "# nodeCount=" << gaussianCount << "\n";
     out << "# plyGaussianIndex: 0-based row index, same order as vertices in the exported .ply\n";
@@ -50,4 +50,4 @@ void exportGaussianPixelTableCsv(
     }
 }
 
-} // namespace lod
+} // namespace conversion
