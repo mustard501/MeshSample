@@ -1,6 +1,6 @@
-# Mesh2Splat
+# meshsample
 
-**Mesh2Splat** 将 **glTF Binary（`.glb`）** 网格在 GPU 上快速采样为 **3D Gaussian Splatting（3DGS）** 点云，并导出为 PLY。项目当前定位为 **mesh → 高斯采样与导出工具**，不再包含内置 GS 渲染预览。
+**meshsample** 将 **glTF Binary（`.glb`）** 网格在 GPU 上快速采样为 **3D Gaussian Splatting（3DGS）** 点云，并导出为 PLY。项目当前定位为 **mesh → 高斯采样与导出工具**，不再包含内置 GS 渲染预览。
 
 <div align="center">
     <img src="./res/conversion.gif" width="850px">
@@ -10,7 +10,7 @@
 
 ## 项目概览
 
-Mesh2Splat 直接利用网格的几何、UV 与 glTF PBR 材质（base color、metallic-roughness、normal），在正交 UV 空间中为每个 rasterized fragment 生成一个高斯，典型耗时在 **毫秒级**。
+meshsample 直接利用网格的几何、UV 与 glTF PBR 材质（base color、metallic-roughness、normal），在正交 UV 空间中为每个 rasterized fragment 生成一个高斯，典型耗时在 **毫秒级**。
 
 **典型工作流：**
 
@@ -68,7 +68,7 @@ cd ..
 可执行文件输出路径：
 
 ```
-bin/Release/Mesh2Splat.exe
+bin/Release/meshsample.exe
 ```
 
 Debug 构建可使用 `run_build_debug.bat`，输出在 `bin/Debug/`。
@@ -79,7 +79,7 @@ Debug 构建可使用 `run_build_debug.bat`，输出在 `bin/Debug/`。
 
 ### 1. 启动
 
-运行 `bin/Release/Mesh2Splat.exe`，打开 ImGui 界面。
+运行 `bin/Release/meshsample.exe`，打开 ImGui 界面。
 
 ### 2. 单次转换
 
@@ -144,39 +144,3 @@ convert.py             # BRDF PLY → SH PLY（调试，非核心）
 
 ---
 
-## 引用
-
-```bibtex
-@misc{
-  scolari2025mesh2splat,
-  author = {Scolari, Stefano},
-  title = {Mesh2Splat: Fast mesh to 3D Gaussian splat conversion},
-  year = {2025},
-  howpublished = {\url{https://github.com/electronicarts/mesh2splat}},
-  note = {Extended and updated version of the author's Master's thesis at KTH.}
-}
-```
-
----
-
-## Authors
-
-<div align="center">
-<b>Search for Extraordinary Experiences Division (SEED) - Electronic Arts</b><br>
-<a href="https://seed.ea.com">seed.ea.com</a><br>
-<a href="https://seed.ea.com"><img src="./res/seed-logo.png" width="150px"></a>
-</div>
-
-Mesh2Splat 由 [Stefano Scolari](https://www.linkedin.com/in/stefano-scolari/) 在 [KTH](https://www.kth.se/en) 硕士论文与 [SEED](https://www.ea.com/seed) 实习期间创建。
-
----
-
-## Contributing
-
-贡献前需签署 EA Contributor License Agreement（[CLA](https://electronicarts.na1.echosign.com/public/esignWidget?wid=CBFCIBAA3AAABLblqZhByHRvZqmltGtliuExmuV-WNzlaJGPhbSRg2ufuPsM3P0QmILZjLpkGslg24-UJtek*)）。
-
----
-
-## License
-
-源码许可见 [LICENSE.txt](./LICENSE.txt)。
