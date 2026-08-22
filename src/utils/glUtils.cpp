@@ -365,6 +365,17 @@ namespace glUtils
         return dummyRenderbuffer;
     }
 
+    void setUniform1f(GLuint shaderProgram, std::string uniformName, float uniformValue)
+    {
+        GLint uniformLocation = glGetUniformLocation(shaderProgram, uniformName.c_str());
+
+        if (uniformLocation == -1) {
+            std::cerr << "Could not find uniform: '" + uniformName + "'." << std::endl;
+        }
+
+        glUniform1f(uniformLocation, uniformValue);
+    }
+
     void setUniform1i(GLuint shaderProgram, std::string uniformName, int uniformValue)
     {
         GLint uniformLocation = glGetUniformLocation(shaderProgram, uniformName.c_str());

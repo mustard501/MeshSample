@@ -107,25 +107,26 @@ namespace utils
         float occlusionStrength;                // Strength of occlusion effect
         float normalScale;                      // Scale of normal map
         glm::vec3 emissiveFactor;               // Emissive color factor
+        float ior = 1.5f;                       // KHR_materials_ior; glTF default when extension absent
 
         MaterialGltf() : name("Default"), baseColorFactor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)),
             baseColorTexture(TextureInfo()), normalTexture(TextureInfo()), metallicRoughnessTexture(TextureInfo()),
             occlusionTexture(TextureInfo()), emissiveTexture(TextureInfo()),
-            metallicFactor(1.0f), roughnessFactor(1.0f), occlusionStrength(1.0f), normalScale(1.0f), emissiveFactor(glm::vec3(1.0f, 1.0f, 1.0f)) {}
+            metallicFactor(1.0f), roughnessFactor(1.0f), occlusionStrength(1.0f), normalScale(1.0f), emissiveFactor(glm::vec3(1.0f, 1.0f, 1.0f)), ior(1.5f) {}
 
         MaterialGltf(const std::string& name, const glm::vec4& baseColorFactor) :
             name(name), baseColorFactor(baseColorFactor),
             baseColorTexture(TextureInfo()), normalTexture(TextureInfo()), metallicRoughnessTexture(TextureInfo()),
             occlusionTexture(TextureInfo()), emissiveTexture(TextureInfo()),
-            metallicFactor(1.0f), roughnessFactor(1.0f), occlusionStrength(1.0f), normalScale(1.0f), emissiveFactor(glm::vec3(1.0f, 1.0f, 1.0f)) {}
+            metallicFactor(1.0f), roughnessFactor(1.0f), occlusionStrength(1.0f), normalScale(1.0f), emissiveFactor(glm::vec3(1.0f, 1.0f, 1.0f)), ior(1.5f) {}
 
         MaterialGltf(const std::string& name, const glm::vec4& baseColorFactor, const TextureInfo& baseColorTexture,
             const TextureInfo& normalTexture, const TextureInfo& metallicRoughnessTexture, const TextureInfo& occlusionTexture,
             const TextureInfo& emissiveTexture, float metallicFactor, float roughnessFactor, float occlusionStrength, float normalScale,
-            glm::vec3 emissiveFactor) : name(name), baseColorFactor(baseColorFactor), baseColorTexture(baseColorTexture),
+            glm::vec3 emissiveFactor, float ior = 1.5f) : name(name), baseColorFactor(baseColorFactor), baseColorTexture(baseColorTexture),
             normalTexture(normalTexture), metallicRoughnessTexture(metallicRoughnessTexture), occlusionTexture(occlusionTexture),
             emissiveTexture(emissiveTexture), metallicFactor(metallicFactor), roughnessFactor(roughnessFactor), occlusionStrength(occlusionStrength),
-            normalScale(normalScale), emissiveFactor(emissiveFactor) {}
+            normalScale(normalScale), emissiveFactor(emissiveFactor), ior(ior) {}
     };
 
 

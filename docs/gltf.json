@@ -1,0 +1,23 @@
+{
+    "materials": [
+      {
+        "name": "Glass",
+        "pbrMetallicRoughness": {
+          "baseColorFactor": [1, 1, 1, 1],
+          "metallicFactor": 0.0,
+          "roughnessFactor": 0.1
+        },
+        "extensions": {
+          "KHR_materials_ior": {
+            "ior": 1.52
+          },
+          "KHR_materials_specular": {
+            "specularFactor": 1.0,
+            "specularTexture": { "index": 0, "texCoord": 0 },
+            "specularColorFactor": [1.0, 1.0, 1.0],
+            "specularColorTexture": { "index": 1, "texCoord": 0 }
+          }
+        }
+      }
+    ]
+  }

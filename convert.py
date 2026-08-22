@@ -172,7 +172,7 @@ def process_directory(input_dir):
 
 
 if __name__ == "__main__":
-    target_directory = "1"
+    target_directory = "output/ior_test"
 
     if os.path.exists(target_directory):
         process_directory(target_directory)

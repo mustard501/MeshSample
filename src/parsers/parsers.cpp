@@ -644,6 +644,7 @@ namespace parsers
         file << "property float base_b\n";
         file << "property float metallic\n";
         file << "property float roughness\n";
+        file << "property float ior\n";
         file << "property float opacity\n";
         file << "property float scale_0\n";
         file << "property float scale_1\n";
@@ -681,6 +682,12 @@ namespace parsers
             float roughness = glm::clamp(gaussian.pbr.y, 0.0f, 1.0f);
             file.write(reinterpret_cast<const char*>(&metallic), sizeof(float));
             file.write(reinterpret_cast<const char*>(&roughness), sizeof(float));
+
+            float ior = gaussian.pbr.z;
+            if (!std::isfinite(static_cast<double>(ior))) {
+                ior = 1.5f;
+            }
+            file.write(reinterpret_cast<const char*>(&ior), sizeof(float));
 
             float opacity = glm::clamp(gaussian.color.a, 0.0f, 1.0f);
             file.write(reinterpret_cast<const char*>(&opacity), sizeof(float));

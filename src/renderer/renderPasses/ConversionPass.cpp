@@ -122,6 +122,7 @@ void ConversionPass::conversion(
         converterProgramID,
         "u_metallicRoughnessFactor",
         glm::vec2(mesh.first.material.metallicFactor, mesh.first.material.roughnessFactor));
+    glUtils::setUniform1f(converterProgramID, "u_ior", mesh.first.material.ior);
     glUtils::setUniform3f(converterProgramID,      "u_bboxMin", mesh.first.bbox.min);
     glUtils::setUniform3f(converterProgramID,      "u_bboxMax", mesh.first.bbox.max);
 
