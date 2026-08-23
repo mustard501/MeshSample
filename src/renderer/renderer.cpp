@@ -38,7 +38,9 @@ Renderer::Renderer(GLFWwindow* window) : renderContext {}
     glGenBuffers(1, &(renderContext.gaussianBuffer));
     glGenBuffers(1, &(renderContext.conversionGaussianMetaBuffer));
 
-    glUtils::resizeAndBindToPosSSBO<glm::vec4>(MAX_GAUSSIANS_TO_SORT * 6, renderContext.gaussianBuffer, 0);
+    glUtils::resizeAndBindToPosSSBO<glm::vec4>(
+        (MAX_GAUSSIANS_TO_SORT * sizeof(utils::GaussianDataSSBO)) / sizeof(glm::vec4),
+        renderContext.gaussianBuffer, 0);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderContext.conversionGaussianMetaBuffer);
     glBufferData(
         GL_SHADER_STORAGE_BUFFER,

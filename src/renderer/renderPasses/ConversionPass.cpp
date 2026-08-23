@@ -22,7 +22,7 @@ void ConversionPass::execute(RenderContext &renderContext)
     unsigned int maxGaussians = renderContext.resolutionTarget * renderContext.resolutionTarget * 6 * meshCount;
     // We clamp to MAX_GAUSSIANS_TO_SORT since downstream buffers (sort, prepass) are fixed at that size
     maxGaussians = std::min(maxGaussians, static_cast<unsigned int>(MAX_GAUSSIANS_TO_SORT));
-    GLsizeiptr bufferSize = static_cast<GLsizeiptr>(maxGaussians) * sizeof(glm::vec4) * 6;
+    GLsizeiptr bufferSize = static_cast<GLsizeiptr>(maxGaussians) * sizeof(utils::GaussianDataSSBO);
     const GLsizeiptr metaBufferSize = static_cast<GLsizeiptr>(maxGaussians) * sizeof(conversion::ConversionGaussianMeta);
     GLint currentSize;
     
@@ -123,6 +123,8 @@ void ConversionPass::conversion(
         "u_metallicRoughnessFactor",
         glm::vec2(mesh.first.material.metallicFactor, mesh.first.material.roughnessFactor));
     glUtils::setUniform1f(converterProgramID, "u_ior", mesh.first.material.ior);
+    glUtils::setUniform1f(converterProgramID, "u_specularFactor", mesh.first.material.specularFactor);
+    glUtils::setUniform3f(converterProgramID, "u_specularColorFactor", mesh.first.material.specularColorFactor);
     glUtils::setUniform3f(converterProgramID,      "u_bboxMin", mesh.first.bbox.min);
     glUtils::setUniform3f(converterProgramID,      "u_bboxMax", mesh.first.bbox.max);
 

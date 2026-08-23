@@ -391,6 +391,7 @@ namespace utils
         skip |= glm::any(glm::isnan(g.normal))   || glm::any(glm::isinf(g.normal));
         skip |= glm::any(glm::isnan(g.rotation)) || glm::any(glm::isinf(g.rotation));
         skip |= glm::any(glm::isnan(g.pbr))      || glm::any(glm::isinf(g.pbr));
+        skip |= glm::any(glm::isnan(g.specular)) || glm::any(glm::isinf(g.specular));
         if (skip) return true;
     
         return (g.position == glm::vec4(0.0f) &&
@@ -398,7 +399,8 @@ namespace utils
                 g.scale    == glm::vec4(0.0f) &&
                 g.normal   == glm::vec4(0.0f) &&
                 g.rotation == glm::vec4(0.0f) &&
-                g.pbr      == glm::vec4(0.0f));
+                g.pbr      == glm::vec4(0.0f) &&
+                g.specular == glm::vec4(0.0f));
     }
 
     std::string formatWithCommas(int value) {

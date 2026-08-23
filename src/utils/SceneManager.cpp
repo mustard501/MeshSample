@@ -203,6 +203,28 @@ void SceneManager::parseGltfMaterial(const tinygltf::Model& model, int materialI
             materialGltf.ior = static_cast<float>(iorValue.GetNumberAsDouble());
         }
     }
+
+    materialGltf.specularFactor = 1.0f;
+    materialGltf.specularColorFactor = glm::vec3(1.0f);
+    auto specularExtIt = material.extensions.find("KHR_materials_specular");
+    if (specularExtIt != material.extensions.end()) {
+        const tinygltf::Value& specExt = specularExtIt->second;
+        if (specExt.Has("specularFactor")) {
+            const tinygltf::Value& specularFactorValue = specExt.Get("specularFactor");
+            if (specularFactorValue.IsNumber()) {
+                materialGltf.specularFactor = static_cast<float>(specularFactorValue.GetNumberAsDouble());
+            }
+        }
+        if (specExt.Has("specularColorFactor")) {
+            const tinygltf::Value& specularColorValue = specExt.Get("specularColorFactor");
+            if (specularColorValue.IsArray() && specularColorValue.ArrayLen() >= 3) {
+                materialGltf.specularColorFactor = glm::vec3(
+                    static_cast<float>(specularColorValue.Get(0).GetNumberAsDouble()),
+                    static_cast<float>(specularColorValue.Get(1).GetNumberAsDouble()),
+                    static_cast<float>(specularColorValue.Get(2).GetNumberAsDouble()));
+            }
+        }
+    }
 }
 
 bool SceneManager::parseGltfFile(const std::string& filePath, const std::string& parentFolder, std::vector<utils::Mesh>& meshes) {
@@ -687,7 +709,9 @@ void SceneManager::exportPly(const std::string outputFile, unsigned int exportFo
             isFiniteFloat(g.scale.x) && isFiniteFloat(g.scale.y) && isFiniteFloat(g.scale.z) &&
             isFiniteFloat(g.normal.x) && isFiniteFloat(g.normal.y) && isFiniteFloat(g.normal.z) &&
             isFiniteFloat(g.rotation.x) && isFiniteFloat(g.rotation.y) && isFiniteFloat(g.rotation.z) && isFiniteFloat(g.rotation.w) &&
-            isFiniteFloat(g.pbr.x) && isFiniteFloat(g.pbr.y) && isFiniteFloat(g.pbr.z);
+            isFiniteFloat(g.pbr.x) && isFiniteFloat(g.pbr.y) && isFiniteFloat(g.pbr.z) &&
+            isFiniteFloat(g.specular.x) && isFiniteFloat(g.specular.y) &&
+            isFiniteFloat(g.specular.z) && isFiniteFloat(g.specular.w);
         const bool validScale = (g.scale.x > 0.0f) && (g.scale.y > 0.0f) && (g.scale.z > 0.0f);
         if (!finite || !validScale) {
             std::cerr << "Export aborted: invalid gaussian at index " << i

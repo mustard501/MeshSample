@@ -18,6 +18,8 @@ uniform int hasMetallicRoughnessMap;
 uniform vec4 u_materialFactor;
 uniform vec2 u_metallicRoughnessFactor;
 uniform float u_ior;
+uniform float u_specularFactor;
+uniform vec3 u_specularColorFactor;
 uniform int u_maxGaussians;
 
 struct GaussianVertex {
@@ -27,6 +29,7 @@ struct GaussianVertex {
     vec4 normal;
     vec4 rotation;
     vec4 pbr;
+    vec4 specular;
 };
 
 /** std430 mirrors C++ conversion::ConversionGaussianMeta */
@@ -120,6 +123,7 @@ void main() {
     gaussianBuffer.vertices[index].normal = vec4(out_Normal, 0.0);
     gaussianBuffer.vertices[index].rotation = Quaternion;
     gaussianBuffer.vertices[index].pbr = vec4(metallicRoughness, u_ior, 1.0);
+    gaussianBuffer.vertices[index].specular = vec4(u_specularFactor, u_specularColorFactor);
 
     conversionMetaBuffer.records[index].plyGaussianIndex = index;
     conversionMetaBuffer.records[index].glFragCoordX = gl_FragCoord.x;

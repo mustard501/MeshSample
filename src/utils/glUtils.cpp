@@ -438,7 +438,7 @@ namespace glUtils
         glGenBuffers(1, &gaussianBuffer);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, gaussianBuffer);
         //TODO: I will categorize this hardcoding issue of the number of output float4 params from the SSBO as: ISSUE6
-        GLsizeiptr bufferSize = gaussians.size() * sizeof(glm::vec4) * 6;
+        GLsizeiptr bufferSize = gaussians.size() * sizeof(utils::GaussianDataSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER, bufferSize, gaussians.data(), GL_DYNAMIC_DRAW);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }
@@ -448,7 +448,7 @@ namespace glUtils
         glGenBuffers(1, &gaussianBuffer);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, gaussianBuffer);
         //TODO: I will categorize this hardcoding issue of the number of output float4 params from the SSBO as: ISSUE6
-        GLsizeiptr bufferSize = size * sizeof(glm::vec4) * 6;
+        GLsizeiptr bufferSize = size * sizeof(utils::GaussianDataSSBO);
         glBufferData(GL_SHADER_STORAGE_BUFFER, bufferSize, nullptr, GL_DYNAMIC_DRAW);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
     }

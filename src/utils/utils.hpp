@@ -108,17 +108,21 @@ namespace utils
         float normalScale;                      // Scale of normal map
         glm::vec3 emissiveFactor;               // Emissive color factor
         float ior = 1.5f;                       // KHR_materials_ior; glTF default when extension absent
+        float specularFactor = 1.0f;            // KHR_materials_specular; glTF default 1.0
+        glm::vec3 specularColorFactor = glm::vec3(1.0f); // linear RGB; glTF default [1,1,1], may exceed 1
 
         MaterialGltf() : name("Default"), baseColorFactor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)),
             baseColorTexture(TextureInfo()), normalTexture(TextureInfo()), metallicRoughnessTexture(TextureInfo()),
             occlusionTexture(TextureInfo()), emissiveTexture(TextureInfo()),
-            metallicFactor(1.0f), roughnessFactor(1.0f), occlusionStrength(1.0f), normalScale(1.0f), emissiveFactor(glm::vec3(1.0f, 1.0f, 1.0f)), ior(1.5f) {}
+            metallicFactor(1.0f), roughnessFactor(1.0f), occlusionStrength(1.0f), normalScale(1.0f), emissiveFactor(glm::vec3(1.0f, 1.0f, 1.0f)), ior(1.5f),
+            specularFactor(1.0f), specularColorFactor(glm::vec3(1.0f)) {}
 
         MaterialGltf(const std::string& name, const glm::vec4& baseColorFactor) :
             name(name), baseColorFactor(baseColorFactor),
             baseColorTexture(TextureInfo()), normalTexture(TextureInfo()), metallicRoughnessTexture(TextureInfo()),
             occlusionTexture(TextureInfo()), emissiveTexture(TextureInfo()),
-            metallicFactor(1.0f), roughnessFactor(1.0f), occlusionStrength(1.0f), normalScale(1.0f), emissiveFactor(glm::vec3(1.0f, 1.0f, 1.0f)), ior(1.5f) {}
+            metallicFactor(1.0f), roughnessFactor(1.0f), occlusionStrength(1.0f), normalScale(1.0f), emissiveFactor(glm::vec3(1.0f, 1.0f, 1.0f)), ior(1.5f),
+            specularFactor(1.0f), specularColorFactor(glm::vec3(1.0f)) {}
 
         MaterialGltf(const std::string& name, const glm::vec4& baseColorFactor, const TextureInfo& baseColorTexture,
             const TextureInfo& normalTexture, const TextureInfo& metallicRoughnessTexture, const TextureInfo& occlusionTexture,
@@ -150,6 +154,8 @@ namespace utils
         glm::vec4 normal;
         glm::vec4 rotation;
         glm::vec4 pbr;
+        /** (specularFactor, specularColorFactor.rgb) from KHR_materials_specular material factors */
+        glm::vec4 specular;
     };
 
 

@@ -16,6 +16,7 @@
 
 input
 output
+debug
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

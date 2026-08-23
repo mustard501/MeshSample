@@ -645,6 +645,10 @@ namespace parsers
         file << "property float metallic\n";
         file << "property float roughness\n";
         file << "property float ior\n";
+        file << "property float specular_factor\n";
+        file << "property float specular_color_r\n";
+        file << "property float specular_color_g\n";
+        file << "property float specular_color_b\n";
         file << "property float opacity\n";
         file << "property float scale_0\n";
         file << "property float scale_1\n";
@@ -688,6 +692,28 @@ namespace parsers
                 ior = 1.5f;
             }
             file.write(reinterpret_cast<const char*>(&ior), sizeof(float));
+
+            float specularFactor = gaussian.specular.x;
+            if (!std::isfinite(static_cast<double>(specularFactor))) {
+                specularFactor = 1.0f;
+            }
+            file.write(reinterpret_cast<const char*>(&specularFactor), sizeof(float));
+
+            float specularColorR = gaussian.specular.y;
+            float specularColorG = gaussian.specular.z;
+            float specularColorB = gaussian.specular.w;
+            if (!std::isfinite(static_cast<double>(specularColorR))) {
+                specularColorR = 1.0f;
+            }
+            if (!std::isfinite(static_cast<double>(specularColorG))) {
+                specularColorG = 1.0f;
+            }
+            if (!std::isfinite(static_cast<double>(specularColorB))) {
+                specularColorB = 1.0f;
+            }
+            file.write(reinterpret_cast<const char*>(&specularColorR), sizeof(float));
+            file.write(reinterpret_cast<const char*>(&specularColorG), sizeof(float));
+            file.write(reinterpret_cast<const char*>(&specularColorB), sizeof(float));
 
             float opacity = glm::clamp(gaussian.color.a, 0.0f, 1.0f);
             file.write(reinterpret_cast<const char*>(&opacity), sizeof(float));
