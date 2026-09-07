@@ -18,7 +18,6 @@
 | `base_r`, `base_g`, `base_b` | float32 | 基础反照率（sRGB） | 面片 basecolor 积分并面积加权，再夹到 `[0,1]` | `[0,1]` |
 | `metallic` | float32 | 金属度 | 面片 metallic 面积加权平均并夹到 `[0,1]` | `[0,1]` |
 | `roughness` | float32 | 粗糙度 | 面片 roughness 面积加权平均并夹到 `[0,1]` | `[0,1]` |
-| `ior` | float32 | 折射率 | primitive 材质 `KHR_materials_ior.ior`；缺 extension 时为 `1.5` | 通常 `≥ 1.0`（glTF 允许特殊值 `0`） |
 | `opacity` | float32 | 不透明度 | 当前固定为 `1.0` | `1.0` |
 | `scale_0`, `scale_1`, `scale_2` | float32 | 高斯主轴对数尺度 | `cov -> eigvals -> sqrt -> log` | 取决于几何尺度 |
 | `rot_0`, `rot_1`, `rot_2`, `rot_3` | float32 | 旋转四元数 `(w,x,y,z)` | 协方差特征向量转四元数并归一化 | 约 `[-1,1]`，模长约 `1` |
@@ -38,7 +37,6 @@
         "property float base_b",
         "property float metallic",
         "property float roughness",
-        "property float ior",
         "property float opacity",
         "property float scale_0",
         "property float scale_1",
@@ -62,7 +60,6 @@
             ("base_b", "<f4"),
             ("metallic", "<f4"),
             ("roughness", "<f4"),
-            ("ior", "<f4"),
             ("opacity", "<f4"),
             ("scale_0", "<f4"),
             ("scale_1", "<f4"),

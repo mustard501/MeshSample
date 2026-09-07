@@ -194,15 +194,6 @@ void SceneManager::parseGltfMaterial(const tinygltf::Model& model, int materialI
     // Metallic and Roughness Factors
     materialGltf.metallicFactor = material.pbrMetallicRoughness.metallicFactor;
     materialGltf.roughnessFactor = material.pbrMetallicRoughness.roughnessFactor;
-
-    materialGltf.ior = 1.5f;
-    auto iorExtIt = material.extensions.find("KHR_materials_ior");
-    if (iorExtIt != material.extensions.end() && iorExtIt->second.Has("ior")) {
-        const tinygltf::Value& iorValue = iorExtIt->second.Get("ior");
-        if (iorValue.IsNumber()) {
-            materialGltf.ior = static_cast<float>(iorValue.GetNumberAsDouble());
-        }
-    }
 }
 
 bool SceneManager::parseGltfFile(const std::string& filePath, const std::string& parentFolder, std::vector<utils::Mesh>& meshes) {
@@ -687,7 +678,7 @@ void SceneManager::exportPly(const std::string outputFile, unsigned int exportFo
             isFiniteFloat(g.scale.x) && isFiniteFloat(g.scale.y) && isFiniteFloat(g.scale.z) &&
             isFiniteFloat(g.normal.x) && isFiniteFloat(g.normal.y) && isFiniteFloat(g.normal.z) &&
             isFiniteFloat(g.rotation.x) && isFiniteFloat(g.rotation.y) && isFiniteFloat(g.rotation.z) && isFiniteFloat(g.rotation.w) &&
-            isFiniteFloat(g.pbr.x) && isFiniteFloat(g.pbr.y) && isFiniteFloat(g.pbr.z);
+            isFiniteFloat(g.pbr.x) && isFiniteFloat(g.pbr.y);
         const bool validScale = (g.scale.x > 0.0f) && (g.scale.y > 0.0f) && (g.scale.z > 0.0f);
         if (!finite || !validScale) {
             std::cerr << "Export aborted: invalid gaussian at index " << i

@@ -29,7 +29,6 @@ BRDF PLY 字段定义见 [`docs/mesh_to_3dgs_tree_ply_params.md`](docs/mesh_to_3
 |------|------|
 | 输入 | `.glb`（mesh → 采样）；`.ply`（仅加载已有 3DGS，可 re-export） |
 | 材质 | glTF 2.0 Metallic-Roughness：`baseColor`、MR 贴图、normal 贴图 |
-| IOR | 解析 `KHR_materials_ior`；无 extension 时默认 **1.5** |
 | 采样密度 | `Conversion resolution`（16…4096，2 的幂）与 `Gaussian Scale` 滑块 |
 | 批量 | UI 内 Batch 面板，对文件夹内多个 GLB 依次采样并导出 |
 | Shader 热重载 | 修改 `src/shaders/conversion/` 下 shader 后自动检测并重编译 |
@@ -98,7 +97,7 @@ Debug 构建可使用 `run_build_debug.bat`，输出在 `bin/Debug/`。
 | PLY Standard Format | 经典 3DGS PLY；同时写出 companion `.csv`（像素/三角面索引，调试用） |
 | PLY PBR | 带 metallic/roughness 的 PBR PLY |
 | PLY Compressed PBR | 压缩 PBR 格式 |
-| **PLY BRDF (base sRGB, N, MR)** | 自定义 BRDF 属性 PLY：`base_r/g/b`（sRGB）、法线、metallic、roughness、**ior**、opacity、scale、rotation |
+| **PLY BRDF (base sRGB, N, MR)** | 自定义 BRDF 属性 PLY：`base_r/g/b`（sRGB）、法线、metallic、roughness、opacity、scale、rotation |
 
 日常 BRDF 3DGS 管线请使用最后一项（format **3**）。
 

@@ -17,7 +17,6 @@ uniform int hasNormalMap;
 uniform int hasMetallicRoughnessMap;
 uniform vec4 u_materialFactor;
 uniform vec2 u_metallicRoughnessFactor;
-uniform float u_ior;
 uniform int u_maxGaussians;
 
 struct GaussianVertex {
@@ -119,7 +118,7 @@ void main() {
     gaussianBuffer.vertices[index].scale = vec4(Scale, 0.0);
     gaussianBuffer.vertices[index].normal = vec4(out_Normal, 0.0);
     gaussianBuffer.vertices[index].rotation = Quaternion;
-    gaussianBuffer.vertices[index].pbr = vec4(metallicRoughness, u_ior, 1.0);
+    gaussianBuffer.vertices[index].pbr = vec4(metallicRoughness, 0.0, 1.0);
 
     conversionMetaBuffer.records[index].plyGaussianIndex = index;
     conversionMetaBuffer.records[index].glFragCoordX = gl_FragCoord.x;

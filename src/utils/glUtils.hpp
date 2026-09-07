@@ -90,7 +90,6 @@ namespace glUtils
         GLuint oldProgram);
 
     //TODO: Make template function for this and make these one generic
-    void setUniform1f(GLuint shaderProgram, std::string uniformName, float uniformValue);
     void setUniform1i(GLuint shaderProgram, std::string uniformName, int uniformValue);
     void setUniform4f(GLuint shaderProgram, std::string uniformName, glm::vec4 uniformValue);
     void setUniform3f(GLuint shaderProgram, std::string uniformName, glm::vec3 uniformValue);
